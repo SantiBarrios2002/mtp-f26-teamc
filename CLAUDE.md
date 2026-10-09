@@ -41,6 +41,8 @@ Classes and tutor meetings are on **Fridays**. Week 2 = Fri 2-Oct-26.
   `python3 radio/linkbudget.py`.
 - `radio/build_workbook.py` — generates `radio/MTP-F26_TeamC_Radio_LinkBudget.xlsx` with
   live formulas (the hand-in artefact). Keep it in sync with `linkbudget.py`.
+- `radio/build_course_sheet.py` → `radio/AN5142_course_layout_869MHz.xlsx`: the course AN5142 sheet
+  rebuilt row for row (Ground Multipath inlined), course example as a check + SRI/MRM/NM baseline sheets.
 - `radio/phy_config.py` — RFM69HCW profiles (`SRI_100K`, `ROBUST_38K4`, `NM_COMMON`,
   `BENCH_5MW`), CNAF/datasheet checks, duty-cycle budget; regenerates `radio/fw/rfm69_config.h`.
 - `radio/fw/` — portable C99 RFM69 driver behind a HAL, duty-cycle guard, CRC-16, mock SX1231
@@ -73,7 +75,8 @@ Classes and tutor meetings are on **Fridays**. Week 2 = Fri 2-Oct-26.
   "Team X", wrong dates, pre-picked RFM69/nRF24/Black Pill). Use its analysis as input only;
   never present its choices as team decisions.
 - Treat anything not in the Project Definition or confirmed by Santiago as a proposal.
-- Git repo: https://github.com/SantiBarrios2002/mtp-f26-teamc (public, created 9-Oct-26). `docs/` is
+- Git repo: https://github.com/SantiBarrios2002/mtp-f26-teamc (public, created 9-Oct-26). Early commits
+  may go straight to main (Santiago, 9-Oct); never force-push. `docs/` is
   git-ignored (copyrighted course material). Put PDF exports of the pages in `briefs/` too.
 
 ## Status (keep current)
@@ -126,6 +129,14 @@ what's pending.
   the course PDFs are missing (2.67×; all 11 sim tests still pass).
 - Antennas: the RFM69HCW has none (only a 50 Ω ANT pad). Shortlist added to D-R5: Molex 211140 flex,
   Taoglas FXP895 flex, Linx ANT-868-HETH helical, Ignion NN chip. Wire λ/4 (86 mm) stays the QM antenna.
+- Santiago opened the course AN5142 .xls (f0 = 2467 MHz) thinking it was ours. Built
+  `AN5142_course_layout_869MHz.xlsx`, which reproduces the course example to 2e-13 dB. The 869 MHz baseline
+  gives margins of SRI +36.7, MRM +13.9 and NM +20.5 dB, matching linkbudget.py. No Excel or LibreOffice here,
+  so the original .xls can't be edited with its formulas kept.
+- Purchase recommendation: Adafruit RFM69HCW breakout (PID 3070) for bench + QM, kept for the final
+  so the QM module stays the same. Recorded in D-R2.
+- Now a git repo: background sessions edit in a worktree (`.claude/worktrees/`, ignored). Santiago
+  allowed pushing early commits straight to main.
 
 ### 2026-10-07
 - Read the full competition rules for hardware constraints. Key ones: one micro module only; no

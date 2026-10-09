@@ -10,6 +10,9 @@ __pycache__/
 *.pyc
 .mypy_cache/
 
+# Claude Code worktrees
+.claude/
+
 # Windows download markers
 *:Zone.Identifier
 *Zone.Identifier

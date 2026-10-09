@@ -23,6 +23,7 @@ firmware, plus the starting protocol code and simulator handed to protocols & so
 |---|---|
 | `radio/linkbudget.py` | Course-corrected AN5142 link budget and throughput model (`python3 radio/linkbudget.py`) |
 | `radio/MTP-F26_TeamC_Radio_LinkBudget.xlsx` | The same model as a workbook with live formulas (built by `build_workbook.py`) |
+| `radio/AN5142_course_layout_869MHz.xlsx` | The **course** AN5142 sheet rebuilt in its own layout, filled with our 869 MHz baseline (built by `build_course_sheet.py`) |
 | `radio/phy_config.py` | RFM69 radio profiles, CNAF and datasheet checks, duty-cycle budget; generates `radio/fw/rfm69_config.h` |
 | `radio/fw/` | Portable C99 RFM69HCW driver, duty-cycle guard, CRC-16, mock radio and host tests |
 | `radio/*.md` | Decisions, electronics handoff, shared NM radio settings, test plan, Atenea questions |
