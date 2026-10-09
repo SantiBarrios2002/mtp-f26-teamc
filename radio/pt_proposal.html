@@ -127,17 +127,18 @@ td.total{font-weight:600}
 <header class="col">
   <div class="eyebrow">MTP F26 · Team C · Radio Team → Protocols &amp; Software Team</div>
   <h1>Protocol and firmware proposal</h1>
-  <div class="meta"><span><b>From</b> Radio Team (Santiago, Andrian, Marcos)</span><span><b>To</b> Ibrahim, Guillem, Sofia</span><span><b>Version</b> 0.2 · Wed 7 Oct 2026</span></div>
-  <p class="lede">The radio team has fixed the physical layer: 868 MHz, RFM69, 100 kbps, with a tested driver. Everything above it belongs to protocols &amp; software. This is a starting <b>proposal</b> built from the competition rules and our link numbers, to speed you up. It is not a decision. Please change whatever you see better.</p>
+  <div class="meta"><span><b>From</b> Radio Team (Santiago, Andrian, Marcos)</span><span><b>To</b> Ibrahim, Guillem, Sofia</span><span><b>Version</b> 0.3 · Fri 9 Oct 2026</span></div>
+  <p class="lede"><b>New in v0.3:</b> all four teams moved to 2.4 GHz. The radio is now the nRF24L01+ (Ebyte E01-ML01DP5) at 250 kbps, so <b>frames are at most 32 B</b>, each team has its own channel in MRM, and there is no duty-cycle limit any more. The protocol code and the simulator were ported; all 11 scenarios pass.</p>
+  <p class="lede">The radio team has fixed the physical layer: 2.4 GHz, nRF24L01+, 250 kbps, with a tested driver. Everything above it belongs to protocols &amp; software. This is a starting <b>proposal</b> built from the competition rules and our link numbers, to speed you up. It is not a decision. Please change whatever you see better.</p>
 </header>
 
 <section class="bottom col" aria-labelledby="bl">
   <h2 id="bl">In short</h2>
   <ol>
-    <li><b>Compress the file as one deflate stream.</b> On English text in 100-byte lines it measured <b>~3×</b>. The whole file then crosses in <b>~40 s instead of ~119 s</b>, and each round uses a third of the transmit time, so <b>≈9 rounds per hour</b> fit the 10 % duty limit instead of 3.</li>
+    <li><b>Compress the file as one deflate stream.</b> On English text in 100-byte lines it measured <b>~3×</b>. The whole file then crosses in <b>~17 s instead of ~50 s</b> (model, no loss), which leaves most of the 2 minutes to recover from attacks. The simulator, at 5 % loss, needs 28 s with compression and 73 s without.</li>
     <li><b>Selective-repeat ARQ</b> with bursts of 16 frames and one bitmap ACK. Frames are delivered strictly in order, because only the <b>first unbroken run of correct lines</b> counts.</li>
     <li><b>Resume after any interruption.</b> A HELLO handshake identifies the file, and the receiver keeps its progress, so an "attack" or a reboot costs seconds, not the round.</li>
-    <li><b>Network Mode: gossip, not routing.</b> Every node rebroadcasts the small file (~9 frames) on a randomised timer (Trickle-style). No addresses or positions are needed, every node ends up with a copy (that is how teams win NM), and it uses about 1–2 % of the duty budget. It needs agreement with all teams.</li>
+    <li><b>Network Mode: gossip, not routing.</b> Every node rebroadcasts the small file (~20 frames) on a randomised timer (Trickle-style). No addresses or positions are needed, and every node ends up with a copy (that is how teams win NM). It needs agreement with all teams.</li>
     <li><b>Firmware: C on the Pico SDK</b>, with the radio loop on one core and USB/flash/compression on the other. Build a <b>PC simulator first</b> so the protocol is tested before boards exist.</li>
   </ol>
 </section>
@@ -154,7 +155,7 @@ td.total{font-weight:600}
       <tr><td>NM: random order of teams on two rims, 5 lines / 0.5 KB, 5 min; win = deliver a copy from one of your nodes</td><td>A flooding/gossip protocol shared by all teams, where every node stores the file. <b>No switch may indicate the position in the network.</b></td></tr>
       <tr><td>MRM: all teams transmit at once, 260 m, interference</td><td>Channel-access layer (listen before talk, backoff) and a plan agreed with the other teams.</td></tr>
       <tr><td>Quick Mode: one line (&lt; 500 chars), zero errors, &lt; 2 min, first attempt only</td><td>A simple, robust first version is enough. Reliability beats speed there.</td></tr>
-      <tr><td>CNAF (radio team): ≤ 10 % duty cycle per hour at 869.40–869.65 MHz</td><td>Transmit time is a budget. Compression and stopping early save rounds. The driver enforces the limit (<span class="mono">dc_guard</span>).</td></tr>
+      <tr><td>CNAF UN-85 b) (radio team): 2.4 GHz, 10 mW e.i.r.p., no duty-cycle limit; nRF24 frames ≤ 32 B</td><td>No transmit-time budget. Headers must stay small: every byte of header is 3 % of a frame.</td></tr>
     </tbody>
   </table></div>
 </section>
@@ -169,17 +170,17 @@ flowchart TB
   CMP --> TRN["Transport / session&lt;br/&gt;HELLO, resume, end of file"]
   TRN --> LNK["Link&lt;br/&gt;selective-repeat ARQ, 16-frame bursts, bitmap ACK"]
   LNK --> MAC["Channel access&lt;br/&gt;SRI: none · MRM: listen-before-talk + backoff · NM: Trickle gossip"]
-  MAC --> PHY["Radio driver (done by RT)&lt;br/&gt;rfm69_send / rfm69_poll_rx · profiles · duty-cycle guard"]
+  MAC --> PHY["Radio driver (done by RT)&lt;br/&gt;nrf24_send / nrf24_poll_rx · profiles · RPD carrier sense"]
 </pre>
   </div>
 </section>
 
 <section aria-labelledby="s-frames">
   <div class="col"><h2 id="s-frames">Frame formats</h2>
-  <p>Each radio frame carries at most 64 bytes after the length byte. A full DATA frame takes <b>5.84 ms</b> on air at 100 kbps.</p></div>
-  <div class="frame"><div class="frame-row"><div class="fld hdr" style="flex:1.3"><b>type|flags</b><span>1 B</span></div><div class="fld hdr" style="flex:1.1"><b>session</b><span>1 B</span></div><div class="fld hdr" style="flex:1.3"><b>seq</b><span>2 B</span></div><div class="fld pay" style="flex:7"><b>compressed file bytes</b><span>≤ 60 B</span></div><div class="fld crc" style="flex:1.4"><b>CRC</b><span>2 B · radio</span></div></div><p class="frame-cap">DATA, SRI/MRM. Length byte 64 at most; the radio adds and checks the CRC (profile SRI_100K). <i>session</i> is a random byte chosen at HELLO, so frames from earlier runs or other teams are dropped.</p></div>
-  <div class="frame"><div class="frame-row"><div class="fld hdr" style="flex:1.3"><b>type|flags</b><span>1 B</span></div><div class="fld hdr" style="flex:1.1"><b>session</b><span>1 B</span></div><div class="fld hdr" style="flex:1.3"><b>next_seq</b><span>2 B</span></div><div class="fld hdr" style="flex:1.3"><b>bitmap</b><span>2 B</span></div><div class="fld hdr" style="flex:1"><b>rssi</b><span>1 B</span></div><div class="fld crc" style="flex:1.4"><b>CRC</b><span>2 B · radio</span></div></div><p class="frame-cap">ACK. next_seq = every frame before it has arrived. bitmap bit i = frame next_seq+1+i arrived. The receiver also reports the RSSI it measured, for link logging.</p></div>
-  <div class="frame"><div class="frame-row"><div class="fld hdr" style="flex:1"><b>type</b><span>1 B</span></div><div class="fld hdr" style="flex:1.1"><b>session</b><span>1 B</span></div><div class="fld hdr" style="flex:1.4"><b>file_len</b><span>4 B</span></div><div class="fld hdr" style="flex:1.6"><b>file_crc32</b><span>4 B</span></div><div class="fld hdr" style="flex:1"><b>codec</b><span>1 B</span></div><div class="fld pay" style="flex:3"><b>name</b><span>≤ 24 B</span></div><div class="fld crc" style="flex:1.4"><b>CRC</b><span>2 B · radio</span></div></div><p class="frame-cap">HELLO (sender) and HELLO_ACK (receiver; replaces name with next_seq). They identify the file, so a rebooted receiver can resume where it stopped.</p></div>
+  <p>Each radio frame carries at most <b>32 bytes</b> (nRF24 dynamic payload). A full DATA frame takes <b>1.32 ms</b> on air at 250 kbps.</p></div>
+  <div class="frame"><div class="frame-row"><div class="fld hdr" style="flex:1.3"><b>type|flags</b><span>1 B</span></div><div class="fld hdr" style="flex:1.1"><b>session</b><span>1 B</span></div><div class="fld hdr" style="flex:1.3"><b>seq</b><span>2 B</span></div><div class="fld pay" style="flex:7"><b>compressed file bytes</b><span>≤ 28 B</span></div><div class="fld crc" style="flex:1.4"><b>CRC</b><span>2 B · radio</span></div></div><p class="frame-cap">DATA, SRI/MRM. 32 B at most; the radio adds and checks the CRC (profile TEAM_250K). The 16-bit seq covers files up to 1.83 MB. <i>session</i> is a random byte chosen at HELLO, so frames from earlier runs or other teams are dropped.</p></div>
+  <div class="frame"><div class="frame-row"><div class="fld hdr" style="flex:1.3"><b>type|flags</b><span>1 B</span></div><div class="fld hdr" style="flex:1.1"><b>session</b><span>1 B</span></div><div class="fld hdr" style="flex:1.3"><b>next_seq</b><span>2 B</span></div><div class="fld hdr" style="flex:1.3"><b>bitmap</b><span>2 B</span></div><div class="fld hdr" style="flex:1"><b>link</b><span>1 B</span></div><div class="fld crc" style="flex:1.4"><b>CRC</b><span>2 B · radio</span></div></div><p class="frame-cap">ACK. next_seq = every frame before it has arrived. bitmap bit i = frame next_seq+1+i arrived. The last byte is for link logging: the nRF24 has no RSSI, so it carries the RPD bit (signal above about −76 dBm at the antenna).</p></div>
+  <div class="frame"><div class="frame-row"><div class="fld hdr" style="flex:1"><b>type</b><span>1 B</span></div><div class="fld hdr" style="flex:1.1"><b>session</b><span>1 B</span></div><div class="fld hdr" style="flex:1.4"><b>file_len</b><span>4 B</span></div><div class="fld hdr" style="flex:1.6"><b>file_crc32</b><span>4 B</span></div><div class="fld hdr" style="flex:1"><b>codec</b><span>1 B</span></div><div class="fld pay" style="flex:3"><b>name</b><span>≤ 21 B</span></div><div class="fld crc" style="flex:1.4"><b>CRC</b><span>2 B · radio</span></div></div><p class="frame-cap">HELLO (sender) and HELLO_ACK (receiver; replaces name with next_seq). They identify the file, so a rebooted receiver can resume where it stopped.</p></div>
   <p class="col sub">Type values (proposal): 0x01 DATA, 0x02 ACK, 0x03 HELLO, 0x04 HELLO_ACK, 0x05 END, 0x4E NM_DATA. Flags: last-in-burst, retransmission.</p>
 </section>
 
@@ -206,14 +207,14 @@ sequenceDiagram
   <div class="grid2">
     <div class="card"><h3>Timing</h3>
       <ul>
-        <li>Burst of 16 × 64 B frames: <b class="num">93 ms</b></li>
-        <li>ACK + 2 radio turnarounds: <b class="num">≈ 4 ms</b></li>
-        <li>ACK timeout: <b class="num">≈ 24 ms</b> at 100 kbps (scales with bit rate), then resend the burst</li>
-        <li>Goodput (model, with 15 % software overhead): <b class="num">≈ 67 kbps</b></li>
+        <li>Burst of 16 × 32 B frames: <b class="num">≈ 26 ms</b> (1.32 ms each + 0.3 ms gap)</li>
+        <li>ACK + 2 radio turnarounds: <b class="num">≈ 2.5 ms</b></li>
+        <li>ACK timeout: <b class="num">≈ 11.6 ms</b> at 250 kbps (scales with bit rate), then resend the burst</li>
+        <li>Goodput (model, with 15 % software overhead): <b class="num">≈ 159 kbps</b></li>
       </ul></div>
     <div class="card"><h3>Resend rules</h3>
       <p>Each burst first resends every frame the last bitmap marked missing, then fills with new frames. The window never advances past a gap, so the receiver's output is always one continuous run.</p>
-      <p>After 20 silent timeouts, drop to the 38.4 kbps profile and send HELLO again. Never give up before STOP.</p></div>
+      <p>After 8 silent timeouts, send HELLO again with backoff. 250 kbps is already the nRF24's slowest rate, so there is no slower fallback. Never give up before STOP.</p></div>
     <div class="card"><h3>Recovering from attacks</h3>
       <p>Jamming or shadowing only looks like lost ACKs, and the retry loop covers it. A reboot of either box is handled by HELLO. The receiver keeps <span class="mono">next_seq</span> and the data in flash, and the sender re-reads the file from flash.</p>
       <p>Hardware watchdog on both cores, plus brown-out reset.</p></div>
@@ -235,20 +236,20 @@ sequenceDiagram
   </table></div>
   <div class="callout">On the Pico 2, compress during the 5-minute setup: deflate needs roughly 300 KB of RAM <span class="tag t-est">estimate</span>, which fits in 520 KB before the radio buffers are allocated. Decompression needs about 45 KB. Library suggestion: miniz (MIT licence, both directions). Measure the speed on the bench and fall back to a lower level if setup time gets tight.</div>
   <div class="tbl"><table>
-    <thead><tr><th>Effect per 2-min round (1 MB file, 67 kbps goodput)</th><th class="r">Time to send all of it</th><th class="r">Sender TX time</th><th class="r">Rounds per hour within 10 %</th></tr></thead>
+    <thead><tr><th>Effect per 2-min round (1 MB file, 250 kbps, 159 kbps goodput)</th><th class="r">Time to send all of it (model, no loss)</th><th class="r">Simulator, 5 % loss</th></tr></thead>
     <tbody>
-      <tr><td>No compression</td><td class="num r">≈ 119 s (just fits)</td><td class="num r">≈ 115 s</td><td class="num r">≈ 3</td></tr>
-      <tr><td>4 KB independent blocks (2.2×)</td><td class="num r">≈ 54 s</td><td class="num r">≈ 52 s</td><td class="num r">≈ 7</td></tr>
-      <tr class="hl"><td>deflate stream (3.0×)</td><td class="num r">≈ 40 s</td><td class="num r">≈ 38 s</td><td class="num r">≈ 9</td></tr>
-      <tr><td>If the link falls back to 38.4 kbps (26 kbps goodput), deflate stream</td><td class="num r">≈ 103 s</td><td class="num r">≈ 100 s</td><td class="num r">≈ 3.5</td></tr>
+      <tr><td>No compression</td><td class="num r">≈ 50 s</td><td class="num r">73 s</td></tr>
+      <tr><td>4 KB independent blocks (2.2×)</td><td class="num r">≈ 23 s</td><td class="num r">—</td></tr>
+      <tr class="hl"><td>deflate stream (3.0×; 2.62× on the repo sample)</td><td class="num r">≈ 17 s</td><td class="num r">28 s</td></tr>
+      <tr><td>deflate stream at 1 Mbps (SRI option)</td><td class="num r">≈ 5 s</td><td class="num r">13 s</td></tr>
     </tbody>
   </table></div>
 </section>
 
 <section aria-labelledby="s-nm">
   <div class="col"><h2 id="s-nm">Network Mode: gossip proposal for all teams</h2>
-  <p>No node knows its position, and the rules forbid a position switch. The file is only about 500 B, or 9 frames. So we suggest that nothing is routed: <b>every node that holds part of the file rebroadcasts it</b> on a randomised timer, following the Trickle algorithm (IETF RFC 6206), until STOP.</p></div>
-  <div class="frame"><div class="frame-row"><div class="fld hdr" style="flex:1.2"><b>type 0x4E</b><span>1 B</span></div><div class="fld hdr" style="flex:1.3"><b>file_id</b><span>2 B</span></div><div class="fld hdr" style="flex:1"><b>idx</b><span>1 B</span></div><div class="fld hdr" style="flex:1"><b>total</b><span>1 B</span></div><div class="fld pay" style="flex:6"><b>file bytes</b><span>≤ 57 B</span></div><div class="fld crc" style="flex:1.4"><b>CRC-16 sw</b><span>2 B</span></div></div><p class="frame-cap">NM_DATA: <b>the inter-team standard</b> on the NM_COMMON radio profile. file_id = CRC-16 of the whole file. The CRC is computed in software (CCITT-FALSE, big-endian) because different radio chips use different hardware CRCs.</p></div>
+  <p>No node knows its position, and the rules forbid a position switch. The file is only about 500 B, or 20 frames. So we suggest that nothing is routed: <b>every node that holds part of the file rebroadcasts it</b> on a randomised timer, following the Trickle algorithm (IETF RFC 6206), until STOP.</p></div>
+  <div class="frame"><div class="frame-row"><div class="fld hdr" style="flex:1.2"><b>type 0x4E</b><span>1 B</span></div><div class="fld hdr" style="flex:1.3"><b>file_id</b><span>2 B</span></div><div class="fld hdr" style="flex:1"><b>idx</b><span>1 B</span></div><div class="fld hdr" style="flex:1"><b>total</b><span>1 B</span></div><div class="fld pay" style="flex:6"><b>file bytes</b><span>≤ 25 B</span></div><div class="fld crc" style="flex:1.4"><b>CRC-16 sw</b><span>2 B</span></div></div><p class="frame-cap">NM_DATA: <b>the inter-team standard</b> on the NM_COMMON radio profile. file_id = CRC-16 of the whole file. The radio's CRC protects each hop; the software CRC (CCITT-FALSE, big-endian) checks the data end to end across relays.</p></div>
   <div class="grid2">
     <div class="card"><h3>Behaviour</h3>
       <ul>
@@ -261,27 +262,26 @@ sequenceDiagram
       <ul>
         <li><b>No addresses or positions</b>, so it works in any random order of teams.</li>
         <li><b>Every node ends up with a copy</b>, which is the win condition. That makes the +2 bonus, and the +0.5 "poker bonus" for all teams, likely.</li>
-        <li>Duty cost: about 51 ms per full rebroadcast, roughly 60–100 rebroadcasts in 5 min, so <b>3–5 s of TX</b> (about 1 % of the hourly budget).</li>
-        <li>Simple enough for every team to implement on CC1101, RFM69 or Si4463.</li>
+        <li>TX time: about 33 ms per full rebroadcast; in the simulator the busiest node transmits about 1.1 s in 5 min. No duty-cycle limit at 2.4 GHz.</li>
+        <li>Simple enough for every team to implement on any nRF24L01+ board.</li>
       </ul></div>
     <div class="card"><h3>To agree with the other teams</h3>
       <ul>
         <li>The frame above, the radio settings (radio team's NM draft) and the timer values.</li>
-        <li>An interop day before week 6: every team's box in one room, at the bench frequency (869.85 MHz).</li>
+        <li>An interop day before week 6: every team's box in one room, on the NM channel (RF_CH 80, 2480 MHz).</li>
         <li>Protocols &amp; software leads this with the other teams' protocol people; the radio team handles the radio settings.</li>
       </ul></div>
   </div>
 </section>
 
 <section aria-labelledby="s-mrm">
-  <div class="col"><h2 id="s-mrm">MRM: open, decide in weeks 8–9 with the radio team</h2>
-  <p>All teams transmit at the same time, 260 m apart. If every team stays in 869.40–869.65 MHz, they share 250 kHz. Options:</p>
+  <div class="col"><h2 id="s-mrm">MRM: one channel per team</h2>
+  <p>All teams transmit at the same time, 260 m apart. At 2.4 GHz each team gets its own channel, so each keeps its full rate. The radio team's draft for the four teams is RF_CH 24 / 49 / 74 / 82 (D-R4), to be agreed after the campus WiFi survey.</p>
   <ul class="tight">
-    <li><b>Listen before talk</b> using the RFM69 RSSI before each burst, with random backoff. Works with no agreement, but the throughput is shared.</li>
-    <li><b>Agreed time or frequency split</b> between teams (e.g. 5 × 50 kHz at 19.2 kbps): predictable, about 2 000–4 000 lines each before compression.</li>
-    <li><b>2.4 GHz add-on</b> for MRM only (a radio-team decision, D-R4).</li>
+    <li>The risk is a neighbouring team's box a few metres away, which can arrive 40–55 dB above our partner. Channel spacing and distance between boxes handle it (radio brief, MRM section).</li>
+    <li><b>Listen before talk</b> with the RPD bit before each burst stays an option if a channel turns out to be shared with WiFi.</li>
   </ul>
-  <p>Software ask for now: keep the radio profile and the channel-access policy <b>switchable at run time</b>, so the choice doesn't need a rewrite.</p></div>
+  <p>Software ask for now: keep the <b>channel number</b> and the channel-access policy <b>configurable at run time</b>, so the final plan doesn't need a rewrite.</p></div>
 </section>
 
 <section aria-labelledby="s-fw">
@@ -289,9 +289,9 @@ sequenceDiagram
   <div class="tbl"><table>
     <thead><tr><th>Module</th><th>Runs on</th><th>Job</th><th>Owner</th></tr></thead>
     <tbody>
-      <tr><td class="mono">radio/fw/rfm69 + dc_guard + crc16</td><td>core 1</td><td>Radio driver, profiles, duty-cycle guard. <b>Done, 154 host tests.</b></td><td>RT</td></tr>
+      <tr><td class="mono">radio/fw/nrf24 + crc16</td><td>core 1</td><td>Radio driver, profiles, RPD carrier sense. <b>Done, 138 host checks.</b></td><td>RT</td></tr>
       <tr><td class="mono">board_hal</td><td>—</td><td>SPI, pins, timers for the chosen board</td><td>RT + ET</td></tr>
-      <tr><td class="mono">link</td><td>core 1</td><td>Frames, bursts, ACK bitmap, timeouts, profile fallback</td><td>PT</td></tr>
+      <tr><td class="mono">link</td><td>core 1</td><td>Frames, bursts, ACK bitmap, timeouts</td><td>PT</td></tr>
       <tr><td class="mono">session</td><td>core 1</td><td>HELLO / resume / END, role from the switch</td><td>PT</td></tr>
       <tr><td class="mono">codec</td><td>core 0</td><td>miniz deflate at setup; inflate on the receiver</td><td>PT</td></tr>
       <tr><td class="mono">store</td><td>core 0</td><td>Raw flash region (~3 MB) for the file sent and the file received, with a progress record</td><td>PT</td></tr>
@@ -304,31 +304,30 @@ sequenceDiagram
 </section>
 
 <section aria-labelledby="s-sim">
-  <div class="col"><h2 id="s-sim">Simulator: built, first results <span class="pill p-ok" style="vertical-align:4px">new 7 Oct</span></h2>
+  <div class="col"><h2 id="s-sim">Simulator: results on the nRF24 radio <span class="pill p-ok" style="vertical-align:4px">updated 9 Oct</span></h2>
   <p>The radio team built the simulator in <span class="mono">proto/</span>. It runs the <b>same C protocol code</b> planned for the Pico (link with resume, NM gossip, deflate) against a modelled channel:</p>
   <ul class="tight">
     <li>half-duplex radios, with airtime from the real driver;</li>
     <li>collisions, and random or bursty loss;</li>
-    <li>a jamming blackout, and reboots;</li>
-    <li>the real duty-cycle guard.</li>
+    <li>a jamming blackout, and reboots.</li>
   </ul>
   <p>Scoring copies the judges: decompress, then count the first unbroken run of identical lines. <span class="mono">make -C proto test</span> runs 11 scenarios in about 1 second.</p></div>
   <div class="tbl"><table>
-    <thead><tr><th>Scenario (1 MB sample, deflate 3.38×)</th><th class="r">Lines</th><th class="r">Whole file in, worst of 20 seeds</th></tr></thead>
+    <thead><tr><th>Scenario (1 MB sample, deflate 2.62×, 250 kbps, seed 1)</th><th class="r">Lines</th><th class="r">Whole file in</th></tr></thead>
     <tbody>
-      <tr><td>Clean channel</td><td class="num r">10 000</td><td class="num r">32 s</td></tr>
-      <tr><td>5 % random loss</td><td class="num r">10 000</td><td class="num r">38 s</td></tr>
-      <tr><td>10 % random loss</td><td class="num r">10 000</td><td class="num r">44 s</td></tr>
-      <tr><td>Bursty fades + 10 s jamming attack</td><td class="num r">10 000</td><td class="num r">50 s · back 0.13 s after the attack</td></tr>
-      <tr><td>Receiver reboot at 15 s + sender reboot at 40 s, 5 % loss</td><td class="num r">10 000</td><td class="num r">39 s</td></tr>
-      <tr><td>38.4 kbps fallback, 5 % loss</td><td class="num r">10 000</td><td class="num r">92 s</td></tr>
-      <tr class="hl"><td>No compression, 5 % loss (one seed)</td><td class="num r">9 643</td><td class="num r">not finished</td></tr>
-      <tr><td>NM, 10 nodes, 10 % / 70 % loss at 1 / 2 hops</td><td class="num r">all nodes</td><td class="num r">14 s</td></tr>
-      <tr><td>NM, 16 nodes, 30 % / 95 % loss</td><td class="num r">all nodes</td><td class="num r">54 s</td></tr>
+      <tr><td>Clean channel</td><td class="num r">10 000</td><td class="num r">24 s</td></tr>
+      <tr><td>5 % random loss</td><td class="num r">10 000</td><td class="num r">28 s</td></tr>
+      <tr><td>Bursty fades (~6 % loss)</td><td class="num r">10 000</td><td class="num r">30 s</td></tr>
+      <tr><td>10 s jamming attack + 5 % loss</td><td class="num r">10 000</td><td class="num r">38 s · back 0.09 s after the attack</td></tr>
+      <tr><td>Receiver or sender reboot at 15 s, 5 % loss</td><td class="num r">10 000</td><td class="num r">28 s</td></tr>
+      <tr><td>1 Mbps (SRI option), 5 % loss</td><td class="num r">10 000</td><td class="num r">13 s</td></tr>
+      <tr class="hl"><td>No compression, 5 % loss</td><td class="num r">10 000</td><td class="num r">73 s (was 9 643 lines at 868 MHz)</td></tr>
+      <tr><td>NM, 10 nodes, 10 % / 70 % loss at 1 / 2 hops</td><td class="num r">all nodes</td><td class="num r">12 s</td></tr>
+      <tr><td>NM, 10 nodes, 30 % / 95 % loss</td><td class="num r">all nodes</td><td class="num r">43 s</td></tr>
     </tbody>
   </table></div>
-  <div class="callout"><b>It already caught a bug.</b> With fixed timeouts, the 38.4 kbps fallback delivered only 883 lines. One frame (15.2 ms) outlasted the receiver's 15 ms idle-ACK timer, so the receiver ACKed in the middle of bursts and went deaf. All timeouts are now derived from the bit rate.</div>
-  <p class="col sub">Still open in the simulator: an MRM scenario with several teams, listen-before-talk, automatic profile fallback, and loss taken from measured packet-error rates instead of fixed percentages. Assumptions to measure on the bench: 1 ms turnaround, 0.5 ms gap between frames.</p>
+  <div class="callout"><b>It already caught a bug</b> (on the old 868 MHz radio). With fixed timeouts, the 38.4 kbps fallback delivered only 883 lines. One frame (15.2 ms) outlasted the receiver's 15 ms idle-ACK timer, so the receiver ACKed in the middle of bursts and went deaf. All timeouts are now derived from the bit rate.</div>
+  <p class="col sub">Still open in the simulator: an MRM scenario with four teams on their own channels, listen-before-talk, two radios per box, and loss taken from measured packet-error rates instead of fixed percentages. Assumptions to measure on the bench: 1 ms turnaround, 0.3 ms gap between frames.</p>
 </section>
 
 <section aria-labelledby="s-plan">
@@ -358,7 +357,7 @@ sequenceDiagram
 </section>
 
 <footer>
-  <p>Related pages: Team C Radio Brief v0.2 (radio settings, duty cycle, test plan) · Team C Hardware Proposal (Pico 2 + RFM69 board). Rules quoted from <i>MTP F26 – Program Competition Rules – Network Upgrade III + Sustainability</i>.</p>
+  <p>Related pages: Team C Radio Brief v0.4 (radio settings, MRM channel plan, test plan) · Team C Hardware Proposal v0.3 (Pico 2 + 2 × E01-ML01DP5 board). Rules quoted from <i>MTP F26 – Program Competition Rules – Network Upgrade III + Sustainability</i>.</p>
   <p>References: <a href="https://datatracker.ietf.org/doc/html/rfc6206">RFC 6206, The Trickle Algorithm</a> · <a href="https://github.com/richgel999/miniz">miniz</a> · <a href="https://github.com/sekigon-gonnoc/Pico-PIO-USB">Pico-PIO-USB</a> · <a href="https://github.com/hathach/tinyusb">TinyUSB</a>.</p>
 </footer>
 </div>

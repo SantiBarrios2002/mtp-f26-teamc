@@ -43,24 +43,28 @@ Classes and tutor meetings are on **Fridays**. Week 2 = Fri 2-Oct-26.
   live formulas (the hand-in artefact). Keep it in sync with `linkbudget.py`.
 - `radio/build_course_sheet.py` → `radio/AN5142_course_layout_869MHz.xlsx`: the course AN5142 sheet
   rebuilt row for row (Ground Multipath inlined), course example as a check + SRI/MRM/NM baseline sheets.
-- `radio/phy_config.py` — RFM69HCW profiles (`SRI_100K`, `ROBUST_38K4`, `NM_COMMON`,
-  `BENCH_5MW`), CNAF/datasheet checks, duty-cycle budget; regenerates `radio/fw/rfm69_config.h`.
-- `radio/fw/` — portable C99 RFM69 driver behind a HAL, duty-cycle guard, CRC-16, mock SX1231
-  and host tests: `make -C radio/fw test` (regenerates the config first).
-- `radio/DECISIONS.md` (D-R1..D-R5 records), `HANDOFF_ET.md` (interface spec for electronics),
-  `NM_PHY_PROPOSAL.md` (shared PHY draft for other teams), `TEST_PLAN.md` (T0/T2/T4/T5/T13 with
-  expected values), `ATENEA_QUESTIONS.md` (for Marcos to post).
+- `radio/phy_config.py` — nRF24L01+/E01-ML01DP5 profiles (`TEAM_250K`, `TEAM_1M`, `NM_COMMON`,
+  `BENCH_WHIP`), UN-85 b checks (channel, band edge, e.i.r.p. per antenna path, MRM plan spacing);
+  regenerates `radio/fw/nrf24_config.h`. `E01_PA_GAIN_DB` is an estimate until test T0.
+- `radio/fw/` — portable C99 nRF24L01+ driver behind a HAL (DPL + NOACK frames, RF_CH ≤ 83, RPD),
+  CRC-16, mock nRF24 with a simulated channel, host tests: `make -C radio/fw test` (138 checks).
+  The RFM69 driver and duty-cycle guard were removed 9-Oct (in git history).
+- `radio/DECISIONS.md` (D-R1b/D-R2b/D-R4 draft/D-R5b current; 868 records superseded), `HANDOFF_ET.md`
+  (E01 interface for electronics), `NM_PHY_PROPOSAL.md` (nRF24 NM PHY for other teams), `TEST_PLAN.md`
+  (T0 gate, T2, T4, T5, T13–T16; PER-based, nRF24 has no RSSI), `ATENEA_QUESTIONS.md` (for Marcos).
 - Radio brief (artifact, private — Santiago shares it with the team):
   https://claude.ai/artifact/MqP1rz4NzHmGTgJCYMYGqw — source `radio/brief.html`; edit it and
-  republish to the same URL (v0.3 published 9-Oct: Adafruit breakout, antenna pick, shopping list).
+  republish to the same URL (v0.4 published 9-Oct: 2.4 GHz, E01, patches vs omni, MRM channel plan).
 - Hardware proposal for electronics (artifact, private): https://claude.ai/artifact/81s3ZPuHznAvgXU9zWjaWb
-  — source `radio/hw_proposal.html` (v0.2 9-Oct: Pico 2 + Adafruit RFM69HCW carrier PCB, BoM, power, build stages).
+  — source `radio/hw_proposal.html` (v0.3 9-Oct: Pico 2 + 2 × E01-ML01DP5, radio LDO, patch boards, BoM, power).
 - `hw/` — carrier PCB work. `hw/KICAD_SESSION_PROMPT.md` is the brief for the KiCad MCP design session
   (constraints, parts, pin map, power, mechanics, checkpoints, deliverables).
 - `proto/` — PT protocol code (`src/`: link ARQ+resume, NM Trickle gossip, codec) and the PC
   simulator (`sim/`): `make -C proto test` (11 scenarios, ~1 s). See `proto/README.md`.
 - Protocol/firmware proposal for PT (artifact, private): https://claude.ai/artifact/6g1P41SGs1eGf9Jme8YsAK
-  — source `radio/pt_proposal.html` (deflate stream, SR-ARQ + resume, NM Trickle gossip, firmware modules).
+  — source `radio/pt_proposal.html` (v0.3 9-Oct: 32 B nRF24 frames, SR-ARQ + resume, NM gossip, sim results).
+- PDF/HTML exports of the three pages: `briefs/` and the Windows folder (light theme, Chrome headless with
+  mermaid from jsDelivr; the 9-Oct export script lived in the job scratch dir — recreate if needed).
 
 ## Working rules
 
@@ -112,10 +116,9 @@ Classes and tutor meetings are on **Fridays**. Week 2 = Fri 2-Oct-26.
       Verify EU seller + lead time first. **Do not order the Adafruit RFM69 / Molex parts.**
 - [ ] T0: measure E01 output at RF_PWR −18 (power meter/SA) before any field test; T2 sensitivity at 250 kbps
 - [ ] Andrian: campus 2.4 GHz survey (eduroam channels at the SRI/MRM/NM sites) — now decides D-R4
-- [ ] Stale for 2.4 GHz, to redo: `brief.html` (republish), `hw_proposal.html`, `HANDOFF_ET.md`, `NM_PHY_PROPOSAL.md`,
-      `TEST_PLAN.md` (T2 threshold, T13 occupied BW), `hw/KICAD_SESSION_PROMPT.md` (module, pins, patch boards),
-      `phy_config.py` + `radio/fw/` (RFM69 driver → nRF24 driver behind the HAL), `proto/` (32 B nRF24 payload:
-      `frames.h` FRAME_MAX/DATA_PAYLOAD, `link.c` airtime/timeouts)
+- [ ] Decide the antenna build (D-R5b): two patches (proposed), one omni (−4 dB, MRM +0.4 dB), or patch + omni
+- [ ] Share brief v0.4 / hw v0.3 / pt v0.3 + `NM_PHY_PROPOSAL.md` v0.2 and the MRM channel plan with the teams
+- [ ] Write the Pico 2 HAL for `nrf24_hal_t` once ET confirms the pin map; MRM 4-team + two-radio sim scenarios
 - [ ] Patch: tuning-coupon board + VNA session with Prof. Santos; review with Prof. Puente
 - [ ] Measure the IKEA 365+ box inside dimensions (patch boards need ~62 mm inner height)
 - [ ] Marcos posts `ATENEA_QUESTIONS.md` (Q2 now obsolete; Q3, Q4, Q10 updated)
@@ -125,6 +128,18 @@ Classes and tutor meetings are on **Fridays**. Week 2 = Fri 2-Oct-26.
 
 Newest first. One entry per session: what was done, what was decided (and by whom),
 what's pending.
+
+### 2026-10-09 (evening) — 2.4 GHz port finished
+- Santiago asked to finish the "Next up" and how a single omni for RX/TX would look.
+- Single omni: −4 dB on every link (E01 can't fill the 10 dBm cap without antenna gain; RX loses the patch gain):
+  MRM 260 m +0.4 dB, NM +6.9 dB. Recorded in D-R5b with a patch + omni middle option. Not decided.
+- Firmware: nRF24 driver + mock + 138 checks; phy_config rewritten for nRF24 (4 profiles, all checks OK);
+  RFM69 driver, SX1231 mock and dc_guard removed. Protocol: 32 B frames (DATA 28, HELLO name 21, NM chunk 25),
+  nRF24 airtime, 250 kbps; sim 11/11 pass, no-compression case now delivers all 10 000 lines (73 s).
+- Docs: NM PHY v0.2, test plan v0.2 (T0 output-power gate, T14 survey, T15 near-far), ET handoff v0.2 (radio LDO,
+  2 × E01 pin map), KiCad brief (2 footprints, patch boards + tuning coupon), README.
+- Republished brief v0.4, hardware v0.3, protocol v0.3; PDFs re-exported to `briefs/` and the Windows folder.
+- **Start next session with:** antenna decision (patches / omni / mix), order placed?, ET pin map → Pico HAL.
 
 ### 2026-10-09 (later) — 2.4 GHz switch
 - The other 3 teams want 2.4 GHz for all modes; Santiago: drop 868. 4 teams in total. Two antennas per box allowed.

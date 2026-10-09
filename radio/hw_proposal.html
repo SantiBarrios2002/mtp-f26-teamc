@@ -121,18 +121,19 @@ td.total{font-weight:600;border-top:2px solid var(--rule)}
 <header class="col">
   <div class="eyebrow">MTP F26 · Team C · Radio Team → Electronics Team</div>
   <h1>Suggested hardware for the transceiver</h1>
-  <div class="meta"><span><b>From</b> Radio Team (Santiago, Andrian, Marcos)</span><span><b>To</b> Carlos, Michele, Bikash, Guillem</span><span><b>Version</b> 0.2 · Fri 9 Oct 2026</span></div>
-  <p class="lede">The radio baseline is 868 MHz with the RFM69HCW. Under our split, the electronics team picks the micro and designs the board. This page is the radio team's <b>suggestion</b>, built around every hardware rule in the competition PDF, to save you time. It is not a decision. Please challenge it.</p>
+  <div class="meta"><span><b>From</b> Radio Team (Santiago, Andrian, Marcos)</span><span><b>To</b> Carlos, Michele, Bikash, Guillem</span><span><b>Version</b> 0.3 · Fri 9 Oct 2026</span></div>
+  <p class="lede"><b>New in v0.3:</b> all four teams moved to 2.4 GHz, so the radio is now <b>two Ebyte E01-ML01DP5</b> (nRF24L01+ with PA and LNA) per box, each feeding its own patch antenna. They need their own 3.3 V regulator. The Adafruit RFM69 breakout is no longer needed.</p>
+  <p class="lede">The radio baseline is 2.4 GHz with the nRF24L01+. Under our split, the electronics team picks the micro and designs the board. This page is the radio team's <b>suggestion</b>, built around every hardware rule in the competition PDF, to save you time. It is not a decision. Please challenge it.</p>
 </header>
 
 <section class="bottom col" aria-labelledby="bl">
   <h2 id="bl">In short</h2>
   <ol>
     <li><b>Micro module: Raspberry Pi Pico 2</b> (RP2350, <b>not</b> the Pico 2 W). It costs about $5, has 4 MB flash to hold the 1 MB file, 520 KB RAM and 3.3 V logic, and it can act as a USB host on any two pins or on its native USB port. It has no radio chip on board, so it is safe under the protocol ban.</li>
-    <li><b>Radio module: Adafruit RFM69HCW breakout, 868/915 MHz (PID 3070)</b>, €13.65 excl. VAT. It mounts on 0.1" headers and has its own 3.3 V regulator and u.FL pads. We keep the same board from the bench to the final boxes, because modules shown at Quick Mode are final. The radio team's driver is already written and tested. <i>(Changed in v0.2: v0.1 suggested the bare module.)</i></li>
-    <li><b>Board: a custom 2-layer carrier PCB</b> that the Pico 2 and the radio solder onto. It also carries the USB-A host port, the battery charger, the 5 V supply for the stick, ESD protection, the switch, button and LEDs, and a u.FL antenna connector. Before Quick Mode we use a perfboard prototype with the <b>same modules</b>.</li>
+    <li><b>Radio: two Ebyte E01-ML01DP5 per box</b> (genuine nRF24L01+ with PA and LNA, SMA connector, 2 × 4 pin header), about $4 each. One feeds the front patch antenna, one the back. They share one SPI bus. <b>VCC is 2.0–3.6 V only</b>, so they get their own 3.3 V regulator. The same modules go from the bench to the final boxes, because modules shown at Quick Mode are final. The radio team's driver is written and tested. <i>(Changed in v0.3: v0.2 used the Adafruit RFM69HCW breakout at 868 MHz.)</i></li>
+    <li><b>Board: a custom 2-layer carrier PCB</b> that the Pico 2 and the radio solder onto. It also carries the radio regulator, the USB-A host port, the battery charger, the 5 V supply for the stick, ESD protection, and the switch, button and LEDs. The two patch antennas are small separate boards on the box walls, fed by SMA pigtails. Before Quick Mode we use a perfboard prototype with the <b>same modules</b>.</li>
     <li><b>Power: one protected 18650 Li-ion cell</b>, charged on board through a charge-only USB-C port. Our whole competition day uses roughly 10–20 % of it.</li>
-    <li><b>Estimated cost: about €55–65 per device</b> with a lab-made PCB, or about €40–50 with an external fab, against the €150 cap. The Adafruit breakout adds about €10 over a bare radio module.</li>
+    <li><b>Estimated cost: about €45–60 per device</b> with a lab-made PCB, or about €35–45 with an external fab, against the €150 cap. If the lab counts each patch board as its own €15 board, add up to €30; panelising the patches with the carrier may avoid that (ask the lab).</li>
   </ol>
 </section>
 
@@ -144,13 +145,13 @@ td.total{font-weight:600;border-top:2px solid var(--rule)}
       <tr><td>One and only one module including a microprocessor; no single commercial module embedding the entire system</td><td>Pico 2 is the only micro. The radio, charger and boost contain no CPU. No USB-host chips that have their own controller (e.g. CH376), which could count as a second micro.</td></tr>
       <tr><td>No chip implementing WiFi, Bluetooth, ZigBee, 2G–5G</td><td><b>Banned even if unused:</b> Pico W / Pico 2 W, ESP32 boards, Arduino Nano 33 BLE/IoT, Uno R4 WiFi, Nano ESP32, Raspberry Pi Zero W / 3 / 4 / 5.</td></tr>
       <tr><td>Read/write the file from/to a USB memory device: 5 min setup while still wrapped in foil, 3 min to upload afterwards</td><td>A USB-A host port on the box wall, plus <b>≥ 1 MB on-board storage</b>. The sender copies the file in at setup, and the receiver keeps what it got until upload. The stick can be removed during the round.</td></tr>
-      <tr><td>Fits entirely in the 15 × 15 × 7 cm IKEA 365+; only connectors, switches and buttons may stick out</td><td>PCB about 100 × 80 mm or smaller. The antenna sits inside, connected by u.FL so it can be placed high in the box.</td></tr>
+      <tr><td>Fits entirely in the 15 × 15 × 7 cm IKEA 365+; only connectors, switches and buttons may stick out</td><td>PCB about 100 × 80 mm or smaller. The antennas sit inside: two ~60 × 60 mm patch boards standing on the front and back walls, as high as possible.</td></tr>
       <tr><td>Operates autonomously</td><td>A battery and a power switch. Nothing plugged in during a round.</td></tr>
       <tr><td>At least one Tx/Rx switch or button; a pilot light that blinks in Tx/Rx</td><td>Panel pushbutton for Tx/Rx and an activity LED. The box is transparent, so the LED can stay inside.</td></tr>
       <tr><td>Extra switches allowed (e.g. network mode), but <b>no switch indicating the position in the network</b></td><td>One optional SRI/MRM ↔ NM mode switch. Nothing that encodes a node number.</td></tr>
       <tr><td>Drop test from table height to concrete (before MRM)</td><td>Everything soldered (no sockets or loose headers), board on standoffs, battery strapped, antenna glued down.</td></tr>
-      <tr><td>ESD and RF exposure compliance</td><td>TVS/ESD protection on USB and the buttons. RF power is small (~27 mW e.r.p.).</td></tr>
-      <tr><td>Modules shown at Quick Mode are final</td><td>The QM prototype uses the same Pico 2 and the same Adafruit RFM69HCW breakout as the final board.</td></tr>
+      <tr><td>ESD and RF exposure compliance</td><td>TVS/ESD protection on USB and the buttons. RF power is small (≤ 10 mW e.i.r.p.).</td></tr>
+      <tr><td>Modules shown at Quick Mode are final</td><td>The QM prototype uses the same Pico 2 and the same E01-ML01DP5 modules as the final board. Antennas may differ (a whip at QM).</td></tr>
       <tr><td>Unit cost ≤ €150; lab-made PCB counts €15; everything (screws, foam, wires) goes in the BoM</td><td>Cheap modules; consider an external fab for the PCB (see the cost table).</td></tr>
     </tbody>
   </table></div>
@@ -158,7 +159,7 @@ td.total{font-weight:600;border-top:2px solid var(--rule)}
 
 <section aria-labelledby="s-arch">
   <div class="col"><h2 id="s-arch">Block diagram</h2>
-  <p>The only fast data path is SPI to the radio, at 12.5 kB/s. USB file transfer happens only before and after a round.</p></div>
+  <p>The only fast data path is SPI to the radios, at 31 kB/s (250 kbps). USB file transfer happens only before and after a round.</p></div>
   <div class="mermaid-wrap">
 <pre class="mermaid">
 flowchart LR
@@ -168,9 +169,14 @@ flowchart LR
   SW --> BST["5 V boost + current-limited switch&lt;br/&gt;ON only during USB load/save"]
   BST --> USBA["USB-A host port&lt;br/&gt;(file stick)"]
   VSYS --> PICO["Raspberry Pi Pico 2&lt;br/&gt;RP2350 · 4 MB flash"]
-  PICO -- "3V3 (≤300 mA)" --> RFM["RFM69HW/HCW-868&lt;br/&gt;SPI + DIO0 + RESET"]
+  SW --> LDO["Radio LDO 3.3 V&lt;br/&gt;≥ 500 mA"]
+  LDO --> RA["Radio A: E01-ML01DP5&lt;br/&gt;nRF24L01+ PA/LNA"]
+  LDO --> RB["Radio B: E01-ML01DP5"]
+  PICO -- "SPI0 + CSN/CE/IRQ" --> RA
+  PICO -- "SPI0 + CSN/CE/IRQ" --> RB
   PICO -- "PIO-USB D+/D−&lt;br/&gt;(ESD: USBLC6)" --> USBA
-  RFM -- "u.FL" --> ANT["868 MHz antenna&lt;br/&gt;top of box"]
+  RA -- "SMA pigtail" --> PA1["Patch, front wall"]
+  RB -- "SMA pigtail" --> PA2["Patch, back wall"]
   BTN["Tx/Rx button"] --> PICO
   MODE["Mode switch SRI/MRM ↔ NM"] --> PICO
   PICO --> LED["Activity LED (blinks)&lt;br/&gt;+ status LED"]
@@ -205,18 +211,18 @@ flowchart LR
     <thead><tr><th>Function</th><th>Suggested part</th><th>Why</th><th class="r">≈ € / device</th></tr></thead>
     <tbody>
       <tr><td>Micro module</td><td>Raspberry Pi Pico 2 (SC1631), <b>non-W</b></td><td>See above</td><td class="num r">5.5</td></tr>
-      <tr><td>Radio module</td><td>Adafruit RFM69HCW breakout 868/915 MHz (PID 3070), on 0.1" headers</td><td>Breadboard-ready, own 3.3 V regulator, u.FL pads. The same board from the bench to the final box</td><td class="num r">13.7</td></tr>
-      <tr><td>Antenna</td><td>λ/4 wire for Quick Mode; <b>Molex 211140-0100</b> flex (u.FL) for the final; u.FL SMT connector on the breakout</td><td>A 38 × 10 mm sticker, upright under the lid, so the antenna sits high and away from the PCB</td><td class="num r">3</td></tr>
+      <tr><td>Radio modules</td><td>2 × Ebyte E01-ML01DP5 (nRF24L01P + PA/LNA, SMA), on 2 × 4 headers. <b>Not</b> E01C-* (clone chip)</td><td>Breadboard-ready, chip-controlled PA/LNA, so only SPI + CSN + CE + IRQ. Same modules from the bench to the final box</td><td class="num r">7.5</td></tr>
+      <tr><td>Antennas</td><td>2 FR4 patch boards (~60 × 60 mm, front and back walls), 2 SMA pigtails, a 0.5–3 dB SMA pad if T0 needs it; 2 dBi SMA whip for Quick Mode</td><td>Vertical polarisation, mounted high. The pad trims the output to exactly 10 dBm e.i.r.p.</td><td class="num r">6 + boards</td></tr>
       <tr><td>USB host port</td><td>USB-A receptacle, through-hole, panel-facing</td><td>Through-hole survives plugging and the drop test</td><td class="num r">0.5</td></tr>
       <tr><td>5 V for the stick</td><td>Boost (e.g. TPS61023) + current-limited switch (e.g. TPS2051 / AP2552), enabled by a GPIO</td><td>Sticks need 5 V. Powered only during load/save, which saves energy and protects against shorts</td><td class="num r">2</td></tr>
       <tr><td>ESD</td><td>USBLC6-2SC6 on D+/D−; TVS on VBUS and the button lines</td><td>ESD compliance; the USB port is touched every round</td><td class="num r">0.6</td></tr>
       <tr><td>Battery</td><td>1 × protected 18650 Li-ion (~2500 mAh) with solder tabs, or holder + strap</td><td>Steel can is robust in the drop test; rechargeable (sustainability report)</td><td class="num r">6–8</td></tr>
       <tr><td>Charger</td><td>MCP73831 (or TP4056) + USB-C receptacle, charge only</td><td>Charge between rounds without opening the box. Nothing is plugged in during operation</td><td class="num r">1.2</td></tr>
       <tr><td>Controls</td><td>Slide power switch, panel Tx/Rx pushbutton, optional mode switch, 2 LEDs</td><td>Required by the rules</td><td class="num r">2.5</td></tr>
-      <tr><td>Bulk capacitance</td><td>47–100 µF at the breakout's VIN; 100 µF on USB VBUS</td><td>Handles ~95 mA radio TX bursts and stick inrush</td><td class="num r">0.5</td></tr>
+      <tr><td>Radio supply</td><td>3.3 V LDO (AP2112K-3.3 or TLV75533) + 100 µF / 10 µF / 100 nF at each module; 100 µF on USB VBUS</td><td>E01 VCC is 2.0–3.6 V; PA/LNA modules are sensitive to supply noise; handles ~130 mA TX bursts and stick inrush</td><td class="num r">1</td></tr>
       <tr><td>PCB</td><td>2-layer carrier, ≤ 100 × 80 mm</td><td>ETSETB lab = €15 in the BoM (rule); an external fab is ~€1 per board but adds 1–2 weeks</td><td class="num r">1–15</td></tr>
       <tr><td>Mechanics</td><td>M3 nylon standoffs, base plate, cable ties, hot glue, IKEA 365+ box</td><td>Drop test; the BoM must list them too</td><td class="num r">5–7</td></tr>
-      <tr><td class="total" colspan="3">Total per device (verify with quotes)</td><td class="num r total">≈ 40–65</td></tr>
+      <tr><td class="total" colspan="3">Total per device (verify with quotes; + up to €30 if each patch board counts as a lab board)</td><td class="num r total">≈ 35–60</td></tr>
     </tbody>
   </table></div>
 </section>
@@ -227,14 +233,14 @@ flowchart LR
     <div class="card"><h3>Current draw</h3>
       <dl class="kv">
         <dt>Pico 2 running</dt><dd class="num">≈ 30–50 mA <span class="tag t-est">estimate</span></dd>
-        <dt>RFM69 TX +17 dBm</dt><dd class="num">≈ 95 mA <span class="tag t-ver">datasheet</span></dd>
-        <dt>RFM69 RX</dt><dd class="num">≈ 16 mA <span class="tag t-ver">datasheet</span></dd>
+        <dt>E01 TX (one at a time)</dt><dd class="num">≈ 130 mA peak <span class="tag t-est">estimate</span></dd>
+        <dt>E01 RX, both listening</dt><dd class="num">≈ 2 × 26 mA <span class="tag t-ver">datasheet</span></dd>
         <dt>USB stick (5 V)</dt><dd class="num">50–100 mA, only during load/save <span class="tag t-est">estimate</span></dd>
-        <dt>Peak from 3V3</dt><dd class="num">≈ 150 mA, under the Pico's 300 mA limit</dd>
+        <dt>Peak on the radio LDO</dt><dd class="num">≈ 160 mA (radios no longer load the Pico's 3V3)</dd>
       </dl></div>
     <div class="card"><h3>Battery sizing</h3>
-      <p>A sending round averages about 140 mA. Idle with the radio listening is about 50 mA. A full competition day of ~4 hours powered on needs about <b>250–400 mAh</b>.</p>
-      <p>One 2500 mAh 18650 covers that about six times over. A smaller LiPo would also do, but pouch cells are more fragile in the drop test.</p></div>
+      <p>A sending round averages about 170 mA. Idle with both radios listening is about 100 mA. A full competition day of ~4 hours powered on needs about <b>400–700 mAh</b>.</p>
+      <p>One 2500 mAh 18650 covers that about four times over. A smaller LiPo would also do, but pouch cells are more fragile in the drop test.</p></div>
     <div class="card"><h3>For the sustainability report</h3>
       <p>We can measure watts per round directly on this design. The parts are rechargeable and RoHS. The modules unsolder and can be reused, and the board shape lets you repair rather than replace.</p></div>
   </div>
@@ -245,7 +251,7 @@ flowchart LR
   <div class="tbl"><table>
     <thead><tr><th>Stage</th><th>Board</th><th>Goal</th><th>Target</th></tr></thead>
     <tbody>
-      <tr><td>1 · Bench</td><td>Pico 2 + Adafruit RFM69HCW breakout on a breadboard, USB powered</td><td>Radio tests T0/T2; USB-stick read/write via PIO-USB</td><td class="num">as soon as parts arrive</td></tr>
+      <tr><td>1 · Bench</td><td>Pico 2 + E01-ML01DP5 with a whip on a breadboard, USB powered</td><td>Radio tests T0 (output power) and T2; USB-stick read/write via PIO-USB</td><td class="num">as soon as parts arrive</td></tr>
       <tr><td>2 · Quick Mode</td><td>Perfboard, <b>same module part numbers</b>, external power allowed</td><td>One error-free line from a file in &lt; 2 min, first attempt</td><td class="num">week 6–7</td></tr>
       <tr><td>3 · PCB rev A</td><td>Custom 2-layer carrier (KiCad), boxed, battery</td><td>Autonomous, drop-tested, range tests T4/T5</td><td class="num">week 8–9</td></tr>
       <tr><td>4 · PCB rev B</td><td>Fixes from rev A</td><td>Pretest (4 Dec) fully packaged</td><td class="num">week 10–11</td></tr>
@@ -260,7 +266,9 @@ flowchart LR
     <tbody>
       <tr><td>PIO-USB host fails with some USB sticks</td><td>Test 3–4 different sticks in stage 1. The RP2350's native USB can also be a host, so a second path exists on the same chip.</td></tr>
       <tr><td>The foil-wrapped setup makes the USB port hard to reach</td><td>Put the port on a side wall. Ask on Atenea whether the foil may be opened at the port during the 5-min setup.</td></tr>
-      <tr><td>Brown-out during radio TX</td><td>Bulk capacitance at the radio; check the battery at low charge (3.3 V) in stage 3.</td></tr>
+      <tr><td>Brown-out or noise during radio TX</td><td>Separate radio LDO and bulk capacitance at each module; check the battery at low charge (3.3 V) in stage 3.</td></tr>
+      <tr><td>Clone radio chips (Si24R1)</td><td>Buy only the plain E01-ML01DP5 part number from Ebyte's store or a distributor; T0/T2 check the chip.</td></tr>
+      <tr><td>Patch antenna off frequency (FR4 tolerance)</td><td>A tuning coupon with five lengths, measured on the RF-lab VNA inside the box before the final patch boards.</td></tr>
       <tr><td>Drop test breaks a joint or ejects the battery</td><td>No sockets; standoffs; strapped cell; drop rev A on purpose in week 9.</td></tr>
       <tr><td>The "attacks" interrupt the link mid-round</td><td>Watchdog and brown-out reset; firmware resumes from the last acknowledged line (protocols team).</td></tr>
     </tbody>
@@ -271,14 +279,15 @@ flowchart LR
   <div class="col"><h2 id="s-ask">What we need from electronics</h2>
   <ol>
     <li>Agree or counter-propose the micro by <b>Fri 16 Oct</b>, so we can order together with the radio modules.</li>
-    <li>Confirm the Adafruit breakout and pick the PCB route (lab at €15, or external fab).</li>
-    <li>Pin map for SPI, NSS, RESET, DIO0, PIO-USB D+/D−, button, LEDs and mode switch. We will write the radio's hardware layer against it.</li>
+    <li>Confirm the E01-ML01DP5 and the radio LDO, and pick the PCB route (lab at €15, or external fab). Ask the lab whether the patch boards can be panelised with the carrier as one board.</li>
+    <li>Pin map for SPI and the two radios' CSN, CE and IRQ (proposal: GP16/18/19; A on GP17/20/21; B on GP22/14/15), PIO-USB D+/D−, button, LEDs and mode switch. We will write the radio's hardware layer against it.</li>
+    <li>The IKEA box's inside height: a patch board needs about 62 mm.</li>
     <li>Book Prof. Chávez or Prof. Jiménez to review this block diagram and the lab's PCB capabilities.</li>
   </ol></div>
 </section>
 
 <footer>
-  <p>Radio details (interface pins, timing, test plan): Team C Radio Brief v0.2. Rules quoted from <i>MTP F26 – Program Competition Rules – Network Upgrade III + Sustainability</i>.</p>
-  <p>Sources checked 7 Oct 2026: <a href="https://github.com/sekigon-gonnoc/Pico-PIO-USB">Pico-PIO-USB</a> (USB host/device via PIO, RP2040 and RP2350) · <a href="https://www.cnx-software.com/2024/08/08/raspberry-pi-pico-2-raspberry-pi-rp2350-dual-core-risc-v-or-arm-cortex-m33-microcontroller/">Pico 2 specs</a> · <a href="https://www.tme.eu/sa/en/details/rfm69hw-868s2/rf-modules/hope-microelectronics/">TME RFM69HW-868S2</a>.</p>
+  <p>Radio details (interface pins, channel plan, test plan): Team C Radio Brief v0.4. Rules quoted from <i>MTP F26 – Program Competition Rules – Network Upgrade III + Sustainability</i>.</p>
+  <p>Sources checked 7 Oct 2026: <a href="https://github.com/sekigon-gonnoc/Pico-PIO-USB">Pico-PIO-USB</a> (USB host/device via PIO, RP2040 and RP2350) · <a href="https://www.cnx-software.com/2024/08/08/raspberry-pi-pico-2-raspberry-pi-rp2350-dual-core-risc-v-or-arm-cortex-m33-microcontroller/">Pico 2 specs</a> · <a href="https://www.cdebyte.com/products/E01-ML01DP5">Ebyte E01-ML01DP5</a> · <a href="https://www.sparkfun.com/datasheets/Components/SMD/nRF24L01Pluss_Preliminary_Product_Specification_v1_0.pdf">nRF24L01+ Product Specification</a>.</p>
 </footer>
 </div>
