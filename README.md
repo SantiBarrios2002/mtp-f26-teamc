@@ -12,8 +12,8 @@ firmware, plus the starting protocol code and simulator handed to protocols & so
 
 | Document | For |
 |---|---|
-| [`briefs/TeamC Radio Brief v0.2.pdf`](briefs/) | Band, module, link budget, duty cycle, test plan |
-| [`briefs/TeamC Hardware Proposal v0.1.pdf`](briefs/) | Suggested board for electronics: Pico 2 + RFM69, BoM, power |
+| [`briefs/TeamC Radio Brief v0.3.pdf`](briefs/) | Band, module (Adafruit RFM69HCW), antenna, what to buy, link budget, duty cycle, test plan |
+| [`briefs/TeamC Hardware Proposal v0.2.pdf`](briefs/) | Suggested board for electronics: Pico 2 + Adafruit RFM69HCW, BoM, power |
 | [`briefs/TeamC Protocol Proposal v0.2.pdf`](briefs/) | Suggested protocol for protocols & software, with simulator results |
 | [`CLAUDE.md`](CLAUDE.md) | Team, calendar, status and session log (kept up to date each session) |
 
@@ -29,6 +29,7 @@ firmware, plus the starting protocol code and simulator handed to protocols & so
 | `radio/*.md` | Decisions, electronics handoff, shared NM radio settings, test plan, Atenea questions |
 | `radio/*.html` | Sources of the three published pages (PDF exports in `briefs/`) |
 | `proto/` | Protocol code (link with resume, NM gossip, compression) and the PC simulator. See [`proto/README.md`](proto/README.md) |
+| `hw/` | Carrier PCB (KiCad), starting with [`hw/KICAD_SESSION_PROMPT.md`](hw/KICAD_SESSION_PROMPT.md) |
 | `docs/` | Course material, **not included**. See [`docs/README.md`](docs/README.md) |
 
 ## Quick start

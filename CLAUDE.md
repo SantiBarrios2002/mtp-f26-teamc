@@ -52,9 +52,11 @@ Classes and tutor meetings are on **Fridays**. Week 2 = Fri 2-Oct-26.
   expected values), `ATENEA_QUESTIONS.md` (for Marcos to post).
 - Radio brief (artifact, private — Santiago shares it with the team):
   https://claude.ai/artifact/MqP1rz4NzHmGTgJCYMYGqw — source `radio/brief.html`; edit it and
-  republish to the same URL (v0.2 published 4-Oct).
+  republish to the same URL (v0.3 published 9-Oct: Adafruit breakout, antenna pick, shopping list).
 - Hardware proposal for electronics (artifact, private): https://claude.ai/artifact/81s3ZPuHznAvgXU9zWjaWb
-  — source `radio/hw_proposal.html` (Pico 2 + RFM69 carrier PCB, BoM, power, build stages).
+  — source `radio/hw_proposal.html` (v0.2 9-Oct: Pico 2 + Adafruit RFM69HCW carrier PCB, BoM, power, build stages).
+- `hw/` — carrier PCB work. `hw/KICAD_SESSION_PROMPT.md` is the brief for the KiCad MCP design session
+  (constraints, parts, pin map, power, mechanics, checkpoints, deliverables).
 - `proto/` — PT protocol code (`src/`: link ARQ+resume, NM Trickle gossip, codec) and the PC
   simulator (`sim/`): `make -C proto test` (11 scenarios, ~1 s). See `proto/README.md`.
 - Protocol/firmware proposal for PT (artifact, private): https://claude.ai/artifact/6g1P41SGs1eGf9Jme8YsAK
@@ -108,7 +110,8 @@ Classes and tutor meetings are on **Fridays**. Week 2 = Fri 2-Oct-26.
 - [ ] Share the radio brief + new radio/ docs with Andrian and Marcos; get sign-off
 - [ ] Marcos posts `ATENEA_QUESTIONS.md`; send `HANDOFF_ET.md` to electronics
 - [ ] Send `NM_PHY_PROPOSAL.md` to other teams' leaders
-- [ ] Order RFM69HCW 868 (×4) once ET confirms; run T0 + T2 before Quick Mode
+- [ ] Order by 16-Oct: 3 × Adafruit RFM69HCW (PID 3070), 4 × Molex 211140-0100, 3 × u.FL; then T0 + T2 before QM
+- [ ] Start the KiCad session with `hw/KICAD_SESSION_PROMPT.md` (carrier PCB draft for ET)
 - [ ] Write the HAL for whichever micro ET picks
 - [ ] Share the hardware proposal with ET; get their micro choice + RFM69 footprint by 16-Oct
 - [ ] Atenea Q6–Q9 (USB through the foil; combo boards; role switch; encoding + output name) go with the others
@@ -136,6 +139,10 @@ what's pending.
 - Purchase recommendation: Adafruit RFM69HCW breakout (PID 3070) for bench + QM, kept for the final
   so the QM module stays the same. €13.65 excl. VAT at Opencircuit, 10–12 days delivery: order by 16-Oct. Recorded in D-R2.
 - Antenna pick: wire for QM, Molex 211140-0100 for the final (buy 4 + 3 u.FL connectors). Recorded in D-R5.
+- Radio brief v0.3 and hardware page v0.2 republished (Adafruit breakout, antenna, shopping list,
+  cost ≈€55–65 with lab PCB). PDFs re-exported to `briefs/` and the Windows folder; old versions removed.
+- Wrote `hw/KICAD_SESSION_PROMPT.md` for a new session to design the carrier PCB with the KiCad MCP.
+- **Start next session with:** the KiCad prompt, or the outcome of Fri 16-Oct (sign-off, order placed?).
 - Now a git repo: background sessions edit in a worktree (`.claude/worktrees/`, ignored). Santiago
   allowed pushing early commits straight to main.
 

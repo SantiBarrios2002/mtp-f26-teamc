@@ -113,7 +113,8 @@ footer{margin-top:3rem;color:var(--ink-3);font-size:.82rem;border-top:1px solid 
 <header class="col">
   <div class="eyebrow">MTP F26 · Team C · Radio Team</div>
   <h1>Radio brief: band, module and link budget</h1>
-  <div class="meta"><span><b>Team</b> Santiago, Andrian, Marcos</span><span><b>Version</b> 0.2 · Sun 4 Oct 2026</span><span><b>Next session</b> Fri 9 Oct (week 3)</span></div>
+  <div class="meta"><span><b>Team</b> Santiago, Andrian, Marcos</span><span><b>Version</b> 0.3 · Fri 9 Oct 2026</span><span><b>Next session</b> Fri 16 Oct (week 4)</span></div>
+  <p class="lede"><b>New in v0.3:</b> what to buy. The <b>Adafruit RFM69HCW breakout</b> as the radio module, a λ/4 wire for Quick Mode and the <b>Molex 211140-0100</b> flex antenna for the final boxes. <b>Order by Fri 16 Oct.</b></p>
   <p class="lede"><b>New in v0.2:</b> a working baseline (868 MHz + RFM69HCW), the duty-cycle limit that now drives our planning, the electronics handoff, a shared-PHY proposal for the other teams, and the test plan.</p>
   <p class="lede">What the rules allow, what the numbers say, and what we need to decide first. Every figure carries a tag:
     <span class="tag t-rule">rule</span> from the competition rules PDF,
@@ -129,7 +130,7 @@ footer{margin-top:3rem;color:var(--ink-3);font-size:.82rem;border-top:1px solid 
     <li><b>868 MHz has range to spare but limited speed.</b> Margin is +36 to +44 dB at 70 m and +19 to +21 dB at 260 m. The 250 kHz channel caps the air rate at about 100–150 kbps. That just covers our goal of 10,000 lines in 2 minutes (it needs ~67 kbps of useful throughput), so compression gives us the safety margin.</li>
     <li><b>2.4 GHz (nRF24L01+) has speed to spare but thin margin:</b> +6 to +9 dB at 70 m and −4.6 dB at 260 m with small whips. Directional 8 dBi patches bring 260 m back to +7 dB.</li>
     <li><b>Our band choice depends on the other teams.</b> In NM every team must share one physical layer, and in MRM every team transmits at once. So the band talks with the other teams have to start <em>this week</em>, before we commit to a module. The module is frozen at Quick Mode, and changing it afterwards costs every bonus. <span class="tag t-rule">rule</span></li>
-    <li><b>Working baseline (v0.2):</b> 868 MHz at 869.525 MHz with the <b>RFM69HCW</b> at +17 dBm and 100 kbps. 2.4 GHz nRF24 stays an add-on option for MRM. Santiago adopted this on 4 Oct so build work can start. <b>Andrian and Marcos still need to sign off, by Fri 16 Oct at the latest.</b></li>
+    <li><b>Working baseline (v0.3):</b> 868 MHz at 869.525 MHz with the <b>RFM69HCW</b> on the <b>Adafruit breakout (PID 3070)</b> at +17 dBm and 100 kbps. Antenna: λ/4 wire for Quick Mode, <b>Molex 211140-0100</b> flex for the final. 2.4 GHz nRF24 stays an add-on option for MRM. Santiago adopted this on 4 Oct so build work can start. <b>Andrian and Marcos still need to sign off, by Fri 16 Oct at the latest.</b></li>
     <li><b>Duty cycle, not range or speed, is the binding limit.</b> A 2-minute sending round is about 115 s of TX, and each box may transmit 360 s per hour. That is <b>about 3 full rounds per hour per box, campus tests included</b>. Repeated tests therefore go to 869.70–870.00 MHz (5 mW, no duty-cycle limit).</li>
   </ol>
 </section>
@@ -160,10 +161,21 @@ footer{margin-top:3rem;color:var(--ink-3);font-size:.82rem;border-top:1px solid 
     <div class="card"><h3>Firmware ready before the hardware</h3>
       <p>A portable C driver for the RFM69 is written and passes 154 host tests against a simulated radio. It needs only five board functions (SPI select and transfer, reset pin, delay, millisecond clock), so it fits whichever micro the electronics team picks.</p>
       <p>It includes the duty-cycle guard and the software CRC for the NM link. Not yet run on a real module.</p></div>
-    <div class="card"><h3>First antenna (QM)</h3>
-      <p>A λ/4 wire (86 mm) bent as an inverted-L: about 60 mm up the box wall, 25 mm under the lid. Cut it long and trim for best RSSI.</p>
-      <p>Mount the radio and antenna <b>as high in the box as possible</b>. Also buy one 868 MHz FPC or helical antenna for an A/B test. Final antenna by week 8, after the antenna consultants review it.</p></div>
+    <div class="card"><h3>Antenna</h3>
+      <p><b>Quick Mode:</b> a λ/4 wire (86 mm) soldered to the antenna pad, bent as an inverted-L: about 60 mm up the box wall, the rest under the lid. Cut it long and trim for best RSSI. The rules let antennas change after QM.</p>
+      <p><b>Final:</b> <b>Molex 211140-0100</b> flex antenna. It is made for 868–870 MHz, is 38 × 10 mm, plugs in by u.FL and is omnidirectional. Stick it upright on the wall under the lid, ≥ 2 cm from the battery and metal. Its −5 dB return loss costs about 1.7 dB, which our +13.9 dB MRM margin absorbs. Test T5 confirms it against the wire. <span class="tag t-asm">assumption</span></p></div>
   </div>
+  <h3 class="col">What to buy (order by Fri 16 Oct)</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Item</th><th class="r">Qty</th><th class="r">Price</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr class="hl"><td><b>Adafruit RFM69HCW breakout</b>, 868/915 MHz (PID 3070)</td><td class="num r">3</td><td class="num r">€13.65 excl. VAT</td><td>The radio module. Keep it in the final boxes too, because modules shown at Quick Mode are final. It has its own 3.3 V regulator and u.FL/SMA pads. HopeRF's 868 and 915 MHz parts are the same hardware. Delivery takes 10–12 days (Opencircuit, checked 9 Oct).</td></tr>
+      <tr><td><b>Molex 211140-0100</b> flex antenna, u.FL</td><td class="num r">4</td><td class="num r">≈ $2.50</td><td>Final antenna; spares, because it is cheap.</td></tr>
+      <tr><td>u.FL SMT connector</td><td class="num r">3</td><td class="num r">&lt; €1</td><td>Not included with the Adafruit board; solders onto its pads.</td></tr>
+      <tr><td>Solid-core wire</td><td class="num r">—</td><td class="num r">—</td><td>The Quick Mode antenna.</td></tr>
+    </tbody>
+  </table></div>
+  <p class="col sub">A bare RFM69HCW module costs ~€3–4, so the breakout adds about €10 per device to the BoM. That matters only for the cost category, and the €150 cap is far away. Switch to the bare module only if the team decides so <b>before</b> Quick Mode.</p>
 </section>
 
 <section class="col" aria-labelledby="s-rules">
@@ -298,7 +310,7 @@ footer{margin-top:3rem;color:var(--ink-3);font-size:.82rem;border-top:1px solid 
     <thead><tr><th>Module</th><th>Band</th><th>Max Tx</th><th>Sensitivity</th><th>Max rate</th><th>Protocol-ban risk</th><th>Notes</th></tr></thead>
     <tbody>
       <tr><td><b>Si4463</b> (RFM26W and similar)</td><td>142–1050 MHz</td><td class="num">+20 dBm · 85 mA</td><td class="num">−109 @40k · −104 @100k · −97 @500k</td><td class="num">500 kbps (1 M 4GFSK)</td><td><span class="pill p-warn">low–med</span></td><td>Best sensitivity and power. No duty-cycle limit found. The datasheet advertises IEEE 802.15.4g PHY support, so ask on Atenea. Steeper setup (register sets from Silicon Labs' WDS tool).</td></tr>
-      <tr class="hl"><td><b>RFM69HCW</b> (SX1231H) <span class="pill p-warn">baseline</span></td><td>868 variant</td><td class="num">+17 dBm cont. · 95 mA</td><td class="num">−114 @4.8k · −105 @38.4k</td><td class="num">300 kbps</td><td><span class="pill p-ok">low</span></td><td>+20 dBm only at ≤1 % duty cycle. Huge Arduino libraries (RadioHead, LowPowerLab). No sensitivity figure above 38.4 kbps, so measure it.</td></tr>
+      <tr class="hl"><td><b>RFM69HCW</b> (SX1231H) <span class="pill p-warn">baseline</span><br><span class="sub">on the Adafruit 3070 breakout</span></td><td>868 variant</td><td class="num">+17 dBm cont. · 95 mA</td><td class="num">−114 @4.8k · −105 @38.4k</td><td class="num">300 kbps</td><td><span class="pill p-ok">low</span></td><td>+20 dBm only at ≤1 % duty cycle. Huge Arduino libraries (RadioHead, LowPowerLab). No sensitivity figure above 38.4 kbps, so measure it.</td></tr>
       <tr><td><b>CC1101</b></td><td>779–928 MHz</td><td class="num">+12 dBm · 34 mA</td><td class="num">−104 @38.4k · −95 @250k</td><td class="num">500 kBaud</td><td><span class="pill p-ok">low</span></td><td>Cheapest and lowest power. Thinner MRM margin; capped at ~100 kbps in the 250 kHz sub-band.</td></tr>
       <tr><td><b>nRF24L01+</b></td><td>2.4 GHz</td><td class="num">0 dBm · 11.3 mA</td><td class="num">−94 @250k · −85 @1M · −82 @2M</td><td class="num">2 Mbps</td><td><span class="pill p-warn">low–med</span></td><td>Speed. Enhanced ShockBurst is Nordic-proprietary, so ask on Atenea. Clones are common, so buy from a distributor.</td></tr>
       <tr><td><b>CC2500</b></td><td>2.4 GHz</td><td class="num">+1 dBm</td><td class="num">−89 @250k · −83 @500k</td><td class="num">500 kBaud</td><td><span class="pill p-ok">low</span></td><td>Alternative to nRF24.</td></tr>
@@ -314,10 +326,10 @@ footer{margin-top:3rem;color:var(--ink-3);font-size:.82rem;border-top:1px solid 
     <thead><tr><th>Decision</th><th>Owner</th><th>Depends on</th><th>Affects</th><th>Status</th></tr></thead>
     <tbody>
       <tr><td><b>D-R1</b> Primary band (868 vs 2.4 GHz vs both)</td><td>Radio</td><td>Other teams' NM/MRM band intentions; Atenea answers</td><td>Module, antennas, firmware</td><td><span class="pill p-warn">baseline: 868 MHz</span><br><span class="sub">sign-off by Fri 16 Oct</span></td></tr>
-      <tr><td><b>D-R2</b> Radio module (frozen at Quick Mode)</td><td>Radio → handed to electronics</td><td>D-R1; bench sensitivity at ≥100 kbps</td><td>PCB, micro interface (SPI), BoM</td><td><span class="pill p-warn">baseline: RFM69HCW</span><br><span class="sub">sign-off by Fri 16 Oct; gate: test T2</span></td></tr>
+      <tr><td><b>D-R2</b> Radio module (frozen at Quick Mode)</td><td>Radio → handed to electronics</td><td>D-R1; bench sensitivity at ≥100 kbps</td><td>PCB, micro interface (SPI), BoM</td><td><span class="pill p-warn">baseline: RFM69HCW on Adafruit 3070</span><br><span class="sub">sign-off and order by Fri 16 Oct; gate: test T2</span></td></tr>
       <tr><td><b>D-R3</b> NM physical layer shared with all teams (frequency, rate, modulation, sync word, CRC)</td><td>Radio + protocols</td><td>What modules the other teams buy</td><td>NM bonus (+2 to +2.5)</td><td><span class="pill p-mute">draft ready</span><br><span class="sub">send to teams; freeze by week 6</span></td></tr>
       <tr><td><b>D-R4</b> MRM access plan (own band, shared channel split, or 2.4 GHz channels)</td><td>Radio</td><td>Number of teams and their bands; tests at 260 m</td><td>MRM (+1)</td><td><span class="pill p-mute">open</span><br><span class="sub">week 8–9</span></td></tr>
-      <tr><td><b>D-R5</b> Antenna per round (in-box gain, polarisation, mounting height)</td><td>Radio</td><td>Container measurements (open vs closed)</td><td>Mechanics, drop test</td><td><span class="pill p-warn">QM: inverted-L wire</span><br><span class="sub">final by week 8</span></td></tr>
+      <tr><td><b>D-R5</b> Antenna per round (in-box gain, polarisation, mounting height)</td><td>Radio</td><td>Container measurements (open vs closed)</td><td>Mechanics, drop test</td><td><span class="pill p-warn">QM: wire · final: Molex 211140-0100</span><br><span class="sub">test T5 confirms; consultant review by week 8</span></td></tr>
     </tbody>
   </table></div>
   <div class="callout info"><b>Reverse D-R2 if</b> test T2 shows worse than −95 dBm sensitivity at 100 kbps, or Atenea bans the chip. The fallback is the Si4463: same band and link budget, more bring-up effort. <b>Reverse D-R1 if</b> the other teams converge on 2.4 GHz for NM, or the competition schedule cannot fit the 10 % budget.</div>
@@ -326,17 +338,17 @@ footer{margin-top:3rem;color:var(--ink-3);font-size:.82rem;border-top:1px solid 
 
 <section aria-labelledby="s-et">
   <div class="col"><h2 id="s-et">Handoff to electronics</h2>
-  <p>The radio team picks the transceiver and the electronics team adapts and picks the micro. This is what the board must provide. Part: <b>HopeRF RFM69HCW, 868 MHz version</b> (the 433 and 915 versions have different matching). The bare module is a small SMD part. For QM a ready-made breakout is easier, e.g. Adafruit "RFM69HCW 868/915 MHz" with regulator and level shifting. Package size and part number are <b>to verify</b> against the datasheet and distributor before ordering. Order 4 (2 boxes + 2 spares) from a distributor, not a marketplace.</p></div>
+  <p>The radio team picks the transceiver and the electronics team adapts and picks the micro. This is what the board must provide. Part: the <b>Adafruit RFM69HCW breakout, 868/915 MHz (PID 3070)</b>, which carries the HopeRF RFM69HCW. It mounts on the board by 0.1" headers, has its own 3.3 V regulator and level shifting, and takes a u.FL connector for the antenna. Check pin names, order and reset polarity against Adafruit's guide and PCB files before laying out the board.</p></div>
   <div class="tbl"><table>
     <thead><tr><th>Pin</th><th>At the micro</th><th>What matters</th></tr></thead>
     <tbody>
-      <tr><td class="mono">3.3V</td><td>supply</td><td><b>3.3 V only, not 5 V tolerant.</b> Budget ≥ 120 mA peak (≈95 mA TX at +17 dBm). 10 µF + 100 nF next to the pin.</td></tr>
+      <tr><td class="mono">VIN, GND</td><td>supply</td><td>Feeds the breakout's own 3.3 V regulator (Adafruit: 3.3–6 V). Budget ≥ 120 mA peak (≈95 mA TX at +17 dBm). Feeding it from the battery side keeps radio bursts off the micro's 3.3 V rail; check the regulator dropout at a low battery.</td></tr>
       <tr><td class="mono">SCK MOSI MISO</td><td>SPI master</td><td>Mode 0, MSB first, ≤ 10 MHz. 4–8 MHz is plenty: 100 kbps is only 12.5 kB/s.</td></tr>
-      <tr><td class="mono">NSS</td><td>GPIO out</td><td>Chip select, active low.</td></tr>
-      <tr><td class="mono">RESET</td><td>GPIO out</td><td><b>Active high.</b> Held low in normal use; the driver pulses it at start-up.</td></tr>
-      <tr><td class="mono">DIO0</td><td>GPIO in, IRQ-capable</td><td>Packet sent (TX) / packet ready (RX).</td></tr>
-      <tr><td class="mono">DIO1</td><td>optional</td><td>Only for frames longer than 64 B.</td></tr>
-      <tr><td class="mono">ANT</td><td>—</td><td>50 Ω to a short wire or u.FL. Keep it away from the micro, battery and USB.</td></tr>
+      <tr><td class="mono">CS</td><td>GPIO out</td><td>Chip select (NSS), active low.</td></tr>
+      <tr><td class="mono">RST</td><td>GPIO out</td><td>Radio reset. The SX1231 reset is active high; confirm the breakout's pull-up/pull-down in Adafruit's guide.</td></tr>
+      <tr><td class="mono">G0</td><td>GPIO in, IRQ-capable</td><td>DIO0: packet sent (TX) / packet ready (RX).</td></tr>
+      <tr><td class="mono">G1</td><td>optional</td><td>DIO1, only for frames longer than 64 B.</td></tr>
+      <tr><td class="mono">u.FL / ANT</td><td>—</td><td>Wire for Quick Mode, Molex 211140-0100 for the final. Keep the antenna away from the micro, battery and USB.</td></tr>
     </tbody>
   </table></div>
   <p class="col sub">Also needed on the board: no WiFi/BT chip, and no micro with a built-in radio (protocol ban). What we need back from electronics: the micro and pin map, a power check that the battery and regulator hold the 120 mA TX peak, and module lead time so T2 runs before Quick Mode.</p>
@@ -417,6 +429,7 @@ footer{margin-top:3rem;color:var(--ink-3);font-size:.82rem;border-top:1px solid 
       <tr><td class="num">R9</td><td class="num">04/10/26</td><td>RT → ET</td><td>Electronics handoff reviewed with ET; pin map and power check returned</td><td>Open</td><td class="num">16/10/26</td><td></td><td></td></tr>
       <tr><td class="num">R10</td><td class="num">04/10/26</td><td>ET</td><td>Order 4 × RFM69HCW 868 (after sign-off)</td><td>Open</td><td class="num">16/10/26</td><td></td><td></td></tr>
       <tr><td class="num">R11</td><td class="num">04/10/26</td><td>RT</td><td>Tests T0 and T2 done; D-R2 confirmed or reversed</td><td>Open</td><td class="num">before QM</td><td></td><td></td></tr>
+      <tr><td class="num">R12</td><td class="num">09/10/26</td><td>RT → ET</td><td>Order 3 × Adafruit RFM69HCW (PID 3070), 4 × Molex 211140-0100, 3 × u.FL connectors</td><td>Open</td><td class="num">16/10/26</td><td></td><td></td></tr>
     </tbody>
   </table></div>
 </section>

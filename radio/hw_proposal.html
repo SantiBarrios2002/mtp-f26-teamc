@@ -121,7 +121,7 @@ td.total{font-weight:600;border-top:2px solid var(--rule)}
 <header class="col">
   <div class="eyebrow">MTP F26 · Team C · Radio Team → Electronics Team</div>
   <h1>Suggested hardware for the transceiver</h1>
-  <div class="meta"><span><b>From</b> Radio Team (Santiago, Andrian, Marcos)</span><span><b>To</b> Carlos, Michele, Bikash, Guillem</span><span><b>Version</b> 0.1 · Wed 7 Oct 2026</span></div>
+  <div class="meta"><span><b>From</b> Radio Team (Santiago, Andrian, Marcos)</span><span><b>To</b> Carlos, Michele, Bikash, Guillem</span><span><b>Version</b> 0.2 · Fri 9 Oct 2026</span></div>
   <p class="lede">The radio baseline is 868 MHz with the RFM69HCW. Under our split, the electronics team picks the micro and designs the board. This page is the radio team's <b>suggestion</b>, built around every hardware rule in the competition PDF, to save you time. It is not a decision. Please challenge it.</p>
 </header>
 
@@ -129,10 +129,10 @@ td.total{font-weight:600;border-top:2px solid var(--rule)}
   <h2 id="bl">In short</h2>
   <ol>
     <li><b>Micro module: Raspberry Pi Pico 2</b> (RP2350, <b>not</b> the Pico 2 W). It costs about $5, has 4 MB flash to hold the 1 MB file, 520 KB RAM and 3.3 V logic, and it can act as a USB host on any two pins or on its native USB port. It has no radio chip on board, so it is safe under the protocol ban.</li>
-    <li><b>Radio module: RFM69HW/HCW-868</b> (SX1231H), about $3.5. The radio team's driver for it is already written and tested.</li>
+    <li><b>Radio module: Adafruit RFM69HCW breakout, 868/915 MHz (PID 3070)</b>, €13.65 excl. VAT. It mounts on 0.1" headers and has its own 3.3 V regulator and u.FL pads. We keep the same board from the bench to the final boxes, because modules shown at Quick Mode are final. The radio team's driver is already written and tested. <i>(Changed in v0.2: v0.1 suggested the bare module.)</i></li>
     <li><b>Board: a custom 2-layer carrier PCB</b> that the Pico 2 and the radio solder onto. It also carries the USB-A host port, the battery charger, the 5 V supply for the stick, ESD protection, the switch, button and LEDs, and a u.FL antenna connector. Before Quick Mode we use a perfboard prototype with the <b>same modules</b>.</li>
     <li><b>Power: one protected 18650 Li-ion cell</b>, charged on board through a charge-only USB-C port. Our whole competition day uses roughly 10–20 % of it.</li>
-    <li><b>Estimated cost: about €45–55 per device</b> with a lab-made PCB, or about €30–40 with an external fab, against the €150 cap. This keeps us competitive in the cost category.</li>
+    <li><b>Estimated cost: about €55–65 per device</b> with a lab-made PCB, or about €40–50 with an external fab, against the €150 cap. The Adafruit breakout adds about €10 over a bare radio module.</li>
   </ol>
 </section>
 
@@ -150,7 +150,7 @@ td.total{font-weight:600;border-top:2px solid var(--rule)}
       <tr><td>Extra switches allowed (e.g. network mode), but <b>no switch indicating the position in the network</b></td><td>One optional SRI/MRM ↔ NM mode switch. Nothing that encodes a node number.</td></tr>
       <tr><td>Drop test from table height to concrete (before MRM)</td><td>Everything soldered (no sockets or loose headers), board on standoffs, battery strapped, antenna glued down.</td></tr>
       <tr><td>ESD and RF exposure compliance</td><td>TVS/ESD protection on USB and the buttons. RF power is small (~27 mW e.r.p.).</td></tr>
-      <tr><td>Modules shown at Quick Mode are final</td><td>The QM prototype uses exactly the Pico 2 and RFM69 part numbers of the final board.</td></tr>
+      <tr><td>Modules shown at Quick Mode are final</td><td>The QM prototype uses the same Pico 2 and the same Adafruit RFM69HCW breakout as the final board.</td></tr>
       <tr><td>Unit cost ≤ €150; lab-made PCB counts €15; everything (screws, foam, wires) goes in the BoM</td><td>Cheap modules; consider an external fab for the PCB (see the cost table).</td></tr>
     </tbody>
   </table></div>
@@ -205,18 +205,18 @@ flowchart LR
     <thead><tr><th>Function</th><th>Suggested part</th><th>Why</th><th class="r">≈ € / device</th></tr></thead>
     <tbody>
       <tr><td>Micro module</td><td>Raspberry Pi Pico 2 (SC1631), <b>non-W</b></td><td>See above</td><td class="num r">5.5</td></tr>
-      <tr><td>Radio module</td><td>HopeRF RFM69HW-868S2 or RFM69HCW-868S2</td><td>Same SX1231H radio, different pad layout; pick one footprint and keep it</td><td class="num r">3.5–6</td></tr>
-      <tr><td>Antenna</td><td>u.FL connector + λ/4 wire (QM), 868 MHz FPC or helical for the A/B test</td><td>u.FL lets the antenna sit high, away from the PCB</td><td class="num r">0.5–5</td></tr>
+      <tr><td>Radio module</td><td>Adafruit RFM69HCW breakout 868/915 MHz (PID 3070), on 0.1" headers</td><td>Breadboard-ready, own 3.3 V regulator, u.FL pads. The same board from the bench to the final box</td><td class="num r">13.7</td></tr>
+      <tr><td>Antenna</td><td>λ/4 wire for Quick Mode; <b>Molex 211140-0100</b> flex (u.FL) for the final; u.FL SMT connector on the breakout</td><td>A 38 × 10 mm sticker, upright under the lid, so the antenna sits high and away from the PCB</td><td class="num r">3</td></tr>
       <tr><td>USB host port</td><td>USB-A receptacle, through-hole, panel-facing</td><td>Through-hole survives plugging and the drop test</td><td class="num r">0.5</td></tr>
       <tr><td>5 V for the stick</td><td>Boost (e.g. TPS61023) + current-limited switch (e.g. TPS2051 / AP2552), enabled by a GPIO</td><td>Sticks need 5 V. Powered only during load/save, which saves energy and protects against shorts</td><td class="num r">2</td></tr>
       <tr><td>ESD</td><td>USBLC6-2SC6 on D+/D−; TVS on VBUS and the button lines</td><td>ESD compliance; the USB port is touched every round</td><td class="num r">0.6</td></tr>
       <tr><td>Battery</td><td>1 × protected 18650 Li-ion (~2500 mAh) with solder tabs, or holder + strap</td><td>Steel can is robust in the drop test; rechargeable (sustainability report)</td><td class="num r">6–8</td></tr>
       <tr><td>Charger</td><td>MCP73831 (or TP4056) + USB-C receptacle, charge only</td><td>Charge between rounds without opening the box. Nothing is plugged in during operation</td><td class="num r">1.2</td></tr>
       <tr><td>Controls</td><td>Slide power switch, panel Tx/Rx pushbutton, optional mode switch, 2 LEDs</td><td>Required by the rules</td><td class="num r">2.5</td></tr>
-      <tr><td>Bulk capacitance</td><td>47–100 µF + 100 nF at the radio; 100 µF on USB VBUS</td><td>Handles ~95 mA radio TX bursts and stick inrush</td><td class="num r">0.5</td></tr>
+      <tr><td>Bulk capacitance</td><td>47–100 µF at the breakout's VIN; 100 µF on USB VBUS</td><td>Handles ~95 mA radio TX bursts and stick inrush</td><td class="num r">0.5</td></tr>
       <tr><td>PCB</td><td>2-layer carrier, ≤ 100 × 80 mm</td><td>ETSETB lab = €15 in the BoM (rule); an external fab is ~€1 per board but adds 1–2 weeks</td><td class="num r">1–15</td></tr>
       <tr><td>Mechanics</td><td>M3 nylon standoffs, base plate, cable ties, hot glue, IKEA 365+ box</td><td>Drop test; the BoM must list them too</td><td class="num r">5–7</td></tr>
-      <tr><td class="total" colspan="3">Total per device (verify with quotes)</td><td class="num r total">≈ 30–55</td></tr>
+      <tr><td class="total" colspan="3">Total per device (verify with quotes)</td><td class="num r total">≈ 40–65</td></tr>
     </tbody>
   </table></div>
 </section>
@@ -245,7 +245,7 @@ flowchart LR
   <div class="tbl"><table>
     <thead><tr><th>Stage</th><th>Board</th><th>Goal</th><th>Target</th></tr></thead>
     <tbody>
-      <tr><td>1 · Bench</td><td>Pico 2 + RFM69 on a 2 mm→2.54 mm adapter, breadboard, USB powered</td><td>Radio tests T0/T2; USB-stick read/write via PIO-USB</td><td class="num">as soon as parts arrive</td></tr>
+      <tr><td>1 · Bench</td><td>Pico 2 + Adafruit RFM69HCW breakout on a breadboard, USB powered</td><td>Radio tests T0/T2; USB-stick read/write via PIO-USB</td><td class="num">as soon as parts arrive</td></tr>
       <tr><td>2 · Quick Mode</td><td>Perfboard, <b>same module part numbers</b>, external power allowed</td><td>One error-free line from a file in &lt; 2 min, first attempt</td><td class="num">week 6–7</td></tr>
       <tr><td>3 · PCB rev A</td><td>Custom 2-layer carrier (KiCad), boxed, battery</td><td>Autonomous, drop-tested, range tests T4/T5</td><td class="num">week 8–9</td></tr>
       <tr><td>4 · PCB rev B</td><td>Fixes from rev A</td><td>Pretest (4 Dec) fully packaged</td><td class="num">week 10–11</td></tr>
@@ -271,7 +271,7 @@ flowchart LR
   <div class="col"><h2 id="s-ask">What we need from electronics</h2>
   <ol>
     <li>Agree or counter-propose the micro by <b>Fri 16 Oct</b>, so we can order together with the radio modules.</li>
-    <li>Pick the RFM69 footprint (HW-S2 or HCW) and the PCB route (lab at €15, or external fab).</li>
+    <li>Confirm the Adafruit breakout and pick the PCB route (lab at €15, or external fab).</li>
     <li>Pin map for SPI, NSS, RESET, DIO0, PIO-USB D+/D−, button, LEDs and mode switch. We will write the radio's hardware layer against it.</li>
     <li>Book Prof. Chávez or Prof. Jiménez to review this block diagram and the lab's PCB capabilities.</li>
   </ol></div>
