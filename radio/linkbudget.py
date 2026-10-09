@@ -154,6 +154,16 @@ NRF24_1M = dict(f_mhz=F24, p_pa_dbm=0, sens_dbm=-85, rate_kbps=1000, g_tx_dbi=2,
 NRF24_2M = dict(NRF24_1M, sens_dbm=-82, rate_kbps=2000)
 NRF24_250k = dict(NRF24_1M, sens_dbm=-94, rate_kbps=250)
 
+# 2.4 GHz baseline (9-Oct-26, all teams on 2.4 GHz): Ebyte E01-ML01DP5 (genuine nRF24L01P + PA/LNA,
+# SMA) with RF_PWR = -18 dBm -> ~+7 dBm at the SMA [ESTIMATE from RFX2401C gain, measure T0].
+# Path = SMA pigtail -1 dB + 0.5 dB pad, FR4 patch 4.5 dBi [ASSUMPTION, measure T5] -> EIRP 10.0 dBm.
+# The pad sits in the shared TX/RX path, so RX pays it too. Sensitivity: chip figure (LNA ignored).
+F24_FHSS = 2441.0  # same band, UN-85 a) FHSS class: 100 mW e.i.r.p. - only if Atenea Q3 says yes
+E01_250k = dict(f_mhz=F24, p_pa_dbm=7, l_match_tx=0.0, l_con_tx=-1.5, l_con_rx=-1.5,
+                g_tx_dbi=4.5, g_rx_dbi=4.5, sens_dbm=-94, rate_kbps=250,
+                notes="E01-ML01DP5 @RF_PWR -18 (~+7 dBm, est.), 1 dB pigtail + 0.5 dB pad, 4.5 dBi FR4 patch")
+E01_1M = dict(E01_250k, sens_dbm=-85, rate_kbps=1000)
+
 SCENARIOS = [
     Link("SRI 70 m | RFM69HCW 868 | 38.4 kbps", d_m=70, **RFM69_38k),
     Link("SRI 70 m | RFM69HCW 868 | 100 kbps", d_m=70, **RFM69_100k),
@@ -177,7 +187,39 @@ SCENARIOS = [
     Link("Bench 70 m | RFM69HCW 869.85 | 100 kbps, +9 dBm (BENCH_5MW)", d_m=70,
          **dict(RFM69_100k, f_mhz=869.85, p_pa_dbm=9,
                 notes="869.70-870.00 MHz: 5 mW e.r.p., no duty-cycle limit; for repeated tests")),
+    # 2.4 GHz baseline (9-Oct-26): E01-ML01DP5, 250 kbps everywhere, FR4 patches, see DECISIONS.md D-R1b
+    Link("SRI 70 m | E01-ML01DP5 2.4G | 250 kbps, patches (2.4 baseline)", d_m=70, **E01_250k),
+    Link("SRI 70 m | E01-ML01DP5 2.4G | 1 Mbps, patches", d_m=70, **E01_1M),
+    Link("MRM 260 m | E01-ML01DP5 2.4G | 250 kbps, patches (2.4 baseline)", d_m=260, **E01_250k),
+    Link("NM hop 100 m | E01-ML01DP5 2.4G | 250 kbps, -10 dB obstr. (2.4 baseline)",
+         d_m=100, l_obstruction=-10, **E01_250k),
+    Link("MRM 260 m | E01-ML01DP5 2.4G | 250 kbps, 100 mW FHSS (if Atenea Q3 = yes)", d_m=260,
+         **dict(E01_250k, f_mhz=F24_FHSS, p_pa_dbm=17,
+                notes="UN-85 a) FHSS: 100 mW e.i.r.p.; needs >=15 hop channels + EN 300 328 adaptivity")),
 ]
+
+# nRF24L01+ RX selectivity, C/I in dB at 250 kbps (Product Spec v1.0 table 8; negative = interferer
+# may be that much STRONGER than the wanted signal at sensitivity + 3 dB). Chip property: LNA doesn't help.
+NRF24_CI_250K = {0: 12, 1: -12, 2: -33, 3: -38, 6: -50, 25: -60}
+# MRM channel plan proposal for 4 teams (RF_CH, f = 2400 + RF_CH MHz): three in the gaps between WiFi
+# channels 1/6/11 at 25 MHz spacing, the fourth at the band edge, 8 MHz from its neighbour.
+MRM_CHANNELS = [24, 49, 74, 82]
+
+
+def ci_needed(offset_mhz: float) -> float:
+    """Selectivity (dB) the nRF24 offers at this channel offset (conservative step lookup)."""
+    best = NRF24_CI_250K[0]
+    for off, ci in sorted(NRF24_CI_250K.items()):
+        if offset_mhz >= off:
+            best = ci
+    return best
+
+
+def near_far(wanted: "Link", r_m: float, isolation_db: float = 0.0) -> float:
+    """Interferer-over-wanted (dB) at our receiver for another team's box r_m away (free space,
+    same EIRP and antenna, inside the ground-bounce breakpoint so free space); isolation_db = pattern
+    rejection of both antennas (side-on patches)."""
+    return wanted.p_rx_fs(r_m) - isolation_db - wanted.p_rx_fe()
 
 FRAMING = {
     # 4 B preamble + 2 B sync + 1 B len + 4 B header + 2 B CRC; ACK every 16 frames
@@ -198,7 +240,7 @@ def report() -> None:
     print("\nHEIGHT SENSITIVITY: flat-earth margin (dB) vs common antenna height")
     hs = [0.5, 0.75, 1.0, 1.5]
     print(f"{'scenario':58} " + " ".join(f"{h:>6}m" for h in hs))
-    for s in SCENARIOS[:1] + SCENARIOS[4:5] + SCENARIOS[6:10]:
+    for s in SCENARIOS[:1] + SCENARIOS[4:5] + SCENARIOS[6:10] + [x for x in SCENARIOS if "2.4 baseline" in x.name]:
         row = [replace(s, h_tx_m=h, h_rx_m=h).margin_fe() for h in hs]
         print(f"{s.name:58} " + " ".join(f"{m:7.1f}" for m in row))
 
@@ -212,6 +254,20 @@ def report() -> None:
             g = fr.goodput_kbps(r)
             print(f"  {label:52} @{r:6.1f} kbps -> goodput {g:6.1f} kbps | lines x1: "
                   f"{lines_delivered(g):5d}  x2: {lines_delivered(g, compression=2):5d}")
+
+    mrm = next(s for s in SCENARIOS if s.name.startswith("MRM") and "2.4 baseline" in s.name)
+    print("\nMRM NEAR-FAR (4 teams simultaneous): other team's box r m from our receiver vs our 260 m link")
+    print(f"  nRF24 C/I at 250 kbps by offset (MHz): {NRF24_CI_250K}")
+    for r in (2, 5, 10, 20):
+        aligned, side = near_far(mrm, r), near_far(mrm, r, isolation_db=20)
+        print(f"  r = {r:3d} m: interferer {aligned:5.1f} dB above wanted (patches aligned), "
+              f"{side:5.1f} dB (side-on, ~10 dB rejection per patch)")
+    chans = MRM_CHANNELS
+    print(f"  channel plan RF_CH {chans} = {[2400 + c for c in chans]} MHz")
+    for a, b in zip(chans, chans[1:]):
+        off = b - a
+        print(f"    {2400 + a}/{2400 + b} MHz: {off} MHz apart -> selectivity {ci_needed(off)} dB "
+              f"-> co-located boxes must keep I/W below {-ci_needed(off)} dB")
 
 
 if __name__ == "__main__":

@@ -83,46 +83,58 @@ Classes and tutor meetings are on **Fridays**. Week 2 = Fri 2-Oct-26.
 
 ## Status (keep current)
 
-**Radio — key results (3-Oct):**
-- Only two bands allow a 2-min round: **869.40–869.65 MHz** (500 mW e.r.p., 10 % DC,
-  UN-39) and **2.4 GHz** (10 mW e.i.r.p., UN-85 b).
-- Flat-earth margins: 868 MHz +36..+44 dB @ 70 m, +19..+21 dB @ 260 m; nRF24 +6..+9 dB
-  @ 70 m, **−4.6 dB @ 260 m**.
-- 868 MHz needs ≥ 100 kbps to move 10k lines in 2 min.
-- RFM69HCW datasheet limits +20 dBm to 1 % duty cycle.
+**9-Oct-26: BAND SWITCH to 2.4 GHz.** All four teams (us + 3 others) chose 2.4 GHz for every mode;
+868 MHz is dropped (kept in `radio/DECISIONS.md` as superseded history). Everything below is the 2.4 GHz baseline.
 
-**Working baseline (Santiago, 4-Oct; needs Andrian + Marcos sign-off by 16-Oct):**
-- D-R1 band 869.40–869.65 MHz @ 869.525 MHz · D-R2 RFM69HCW 868 (Adafruit PID 3070), +17 dBm, 100 kbps
-  GFSK (Fdev 50 kHz) · D-R5 antenna: λ/4 wire for QM, Molex 211140-0100 flex (u.FL) for the final, T5 decides.
-- Duty cycle binds: ~115 s TX per 2-min sending round vs 360 s/h → ≈3 rounds/h/box, tests
-  included. Bench/repeat tests go to 869.70–870.00 MHz (5 mW, no limit).
-- Baseline margins (workbook S13–S15): MRM 260 m +13.9 dB · NM 100 m hop with −10 dB
-  obstruction +20.5 dB · bench 70 m at +9 dBm +28.7 dB. The 100 kbps sensitivity (−100 dBm)
-  is still an estimate until T2.
+**Radio — key results (9-Oct, `python3 radio/linkbudget.py`, workbook S16–S20):**
+- Limit 10 mW e.i.r.p. (UN-85 b). UN-85 a) gives a narrowband radio nothing (10 mW/MHz); only FHSS gets
+  100 mW (+10 dB) → Atenea Q3. No duty-cycle limit.
+- MRM is simultaneous (rules), 4 teams → one channel each at 2.4 GHz (at 868 they'd share 250 kHz).
+- Margins at h 0.75 m: **SRI 70 m +27.0 · MRM 260 m +4.4 (thin; +9.3 at 1.0 m) · NM 100 m hop −10 dB obstr. +10.9 dB**.
+- NM round is **5 min** (SRI/MRM 2 min); NM file is 0.5 kB.
+
+**Working baseline (2.4 GHz; RT proposal, Santiago delegated the module pick):**
+- D-R1b 2400–2483.5 MHz, **250 kbps GFSK in every mode** (goodput ~159 kbps ≫ 67 needed).
+- D-R2b **Ebyte E01-ML01DP5** (genuine nRF24L01P + PA/LNA, SMA) at RF_PWR −18 (~+7 dBm est.) + ≥0.5 dB pad
+  → 10 dBm e.i.r.p.; backup E01-ML01SP4 (SMD, u.FL); never E01C-* (Si24R1 clone).
+- D-R5b **two vertical FR4 patches per box** (front + back walls, separate ~60 × 60 mm boards, vertical pol.),
+  one E01 per patch (selection diversity); patch 37.4 × 28.9 mm, needs a tuning coupon + VNA. QM: 2 dBi whip.
+- D-R4 draft: MRM channels RF_CH 24/49/74/82; near-far up to 55 dB at 2 m → ≥10 m between teams' boxes.
 
 **Open decisions:**
-- [ ] Sign-off of D-R1/D-R2/D-R5 (RT + PM)
-- [ ] D-R3 NM common PHY with other teams (draft ready)
-- [ ] D-R4 MRM access plan (week 8–9)
-- [ ] D-R5 final antenna: Molex vs wire in test T5, consultant review (week 8)
+- [ ] RT + PM sign-off of D-R1b/D-R2b/D-R5b
+- [ ] D-R4 channel plan with the 3 other teams (after Andrian's campus WiFi survey)
+- [ ] D-R3 NM common PHY: rewrite `NM_PHY_PROPOSAL.md` for nRF24
+- [ ] Atenea Q3 (FHSS 100 mW) — worth +10 dB on MRM
 
 **Next up:**
-- [ ] Share the radio brief + new radio/ docs with Andrian and Marcos; get sign-off
-- [ ] Marcos posts `ATENEA_QUESTIONS.md`; send `HANDOFF_ET.md` to electronics
-- [ ] Send `NM_PHY_PROPOSAL.md` to other teams' leaders
-- [ ] Order by 16-Oct: 3 × Adafruit RFM69HCW (PID 3070), 4 × Molex 211140-0100, 3 × u.FL; then T0 + T2 before QM
-- [ ] Start the KiCad session with `hw/KICAD_SESSION_PROMPT.md` (carrier PCB draft for ET)
-- [ ] Write the HAL for whichever micro ET picks
-- [ ] Share the hardware proposal (v0.2) with ET; get their micro choice + OK on the Adafruit breakout by 16-Oct
-- [ ] Measure the IKEA 365+ box inside dimensions (the KiCad session needs them for the board outline)
-- [ ] Andrian: research map or Noise & Interference sheet? (asked 9-Oct); campus interference survey is the open item
-- [ ] Atenea Q6–Q9 (USB through the foil; combo boards; role switch; encoding + output name) go with the others
-- [ ] Share the protocol proposal with PT (Ibrahim, Guillem, Sofia); get agreement by 16-Oct; PT owner for NM gossip talks
+- [ ] Order by 16-Oct (D-R2b shopping list): 10 × E01-ML01DP5, 2 × E01-ML01SP4, SMA pads 1/2/3 dB, pigtails, 2 whips.
+      Verify EU seller + lead time first. **Do not order the Adafruit RFM69 / Molex parts.**
+- [ ] T0: measure E01 output at RF_PWR −18 (power meter/SA) before any field test; T2 sensitivity at 250 kbps
+- [ ] Andrian: campus 2.4 GHz survey (eduroam channels at the SRI/MRM/NM sites) — now decides D-R4
+- [ ] Stale for 2.4 GHz, to redo: `brief.html` (republish), `hw_proposal.html`, `HANDOFF_ET.md`, `NM_PHY_PROPOSAL.md`,
+      `TEST_PLAN.md` (T2 threshold, T13 occupied BW), `hw/KICAD_SESSION_PROMPT.md` (module, pins, patch boards),
+      `phy_config.py` + `radio/fw/` (RFM69 driver → nRF24 driver behind the HAL), `proto/` (32 B nRF24 payload:
+      `frames.h` FRAME_MAX/DATA_PAYLOAD, `link.c` airtime/timeouts)
+- [ ] Patch: tuning-coupon board + VNA session with Prof. Santos; review with Prof. Puente
+- [ ] Measure the IKEA 365+ box inside dimensions (patch boards need ~62 mm inner height)
+- [ ] Marcos posts `ATENEA_QUESTIONS.md` (Q2 now obsolete; Q3, Q4, Q10 updated)
+- [ ] Share the protocol proposal with PT (Ibrahim, Guillem, Sofia); PT owner for NM gossip talks
 
 ## Session log
 
 Newest first. One entry per session: what was done, what was decided (and by whom),
 what's pending.
+
+### 2026-10-09 (later) — 2.4 GHz switch
+- The other 3 teams want 2.4 GHz for all modes; Santiago: drop 868. 4 teams in total. Two antennas per box allowed.
+- Haiku agents swept our files/web; a Sonnet agent picked the module from primary datasheets. Found in the rules:
+  MRM is simultaneous (decisive for 2.4 GHz), NM round is 5 min.
+- RT pick: Ebyte E01-ML01DP5 at ~+7 dBm + pad; 250 kbps everywhere; two vertical FR4 patches per box (one E01 each).
+  MRM 260 m margin drops to +4.4 dB (from +13.9 at 868): antenna height and Atenea Q3 (FHSS 100 mW) are the levers.
+- Added S16–S20 + near-far/channel-plan printout to `linkbudget.py`; workbook rebuilt, formulas = Python (0 diff).
+  New D-R1b/D-R2b/D-R4 draft/D-R5b; old 868 records marked superseded. Atenea Q2 obsolete, Q3/Q4 rewritten, Q10 added.
+- **Start next session with:** order placed? T0 output measurement; then redo the stale docs/firmware list above.
 
 ### 2026-10-09
 - Andrian is starting band research: data/time, bandwidth, noise and interference per band,

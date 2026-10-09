@@ -8,7 +8,95 @@ session and no later than Fri 16-Oct.
 
 ---
 
-## D-R1 — Primary band: 869.40–869.65 MHz (centre 869.525 MHz)
+> **9-Oct-26: band switch.** All four teams (us + 3 others) chose 2.4 GHz for every mode, so the
+> 868 MHz records below (D-R1, D-R2, D-R5 initial) are **superseded** by D-R1b, D-R2b and D-R5b.
+> They are kept for the report (why 868 was the better link and what 2.4 GHz costs). Numbers:
+> `python3 radio/linkbudget.py`, scenarios S16–S20 of the workbook.
+
+## D-R1b — Band: 2.4 GHz ISM (2400–2483.5 MHz), all modes, 250 kbps
+
+**Status:** Agreed between the teams (reported by Santiago, 9-Oct-26) · details Proposed · **Owner:** RT
+
+- **Why it is right for the competition:** MRM runs all teams *simultaneously* (rules: "all teams will have
+  to operate their systems simultaneously"). At 868 the four teams would share one 250 kHz channel
+  (~67/4 kbps each); at 2.4 GHz each team gets its own channel (D-R4). NM needs one PHY shared by all
+  teams, and everyone is now on 2.4 GHz. No duty-cycle limit, so unlimited test rounds.
+- **What it costs:** limit is **10 mW e.i.r.p.** (UN-85 b). UN-85 a) does not help a non-hopping
+  radio (10 mW/MHz, and our signal is < 1 MHz wide); only FHSS gets 100 mW (Atenea Q3, S20: +10 dB).
+  Margins at h = 0.75 m (flat earth, worst-case ground bounce): **SRI 70 m +27.0 dB, MRM 260 m
+  +4.4 dB, NM 100 m hop (−10 dB obstruction) +10.9 dB**, vs +36.7 / +13.9 / +20.5 at 868. MRM is the
+  thin one: +9.3 dB at 1.0 m height, −2.6 dB at 0.5 m, so mount the patches as high as the box allows.
+- **One air rate, 250 kbps GFSK, in every mode:** best sensitivity (−94 dBm chip) and best
+  selectivity (D-R4). Goodput ~159 kbps with 32 B payloads, vs 67 kbps needed for the whole 1 MB file
+  uncompressed, so 1–2 Mbps buys nothing that scores. 1 Mbps stays an SRI option (+18 dB).
+- Legal channels: RF_CH 0–83 (f = 2400 + RF_CH MHz); ≤ 82 at 2 Mbps.
+
+**Reverse if:** never for the band (the teams agreed). Revisit the rate if T2 shows 250 kbps PER problems.
+
+## D-R2b — Module: Ebyte E01-ML01DP5 (genuine nRF24L01P + PA/LNA, SMA)
+
+**Status:** Proposed (RT pick 9-Oct-26, Santiago delegated the choice) · **Owner:** RT → handed to ET
+
+- Genuine Nordic nRF24L01P (Ebyte), PA + LNA front end (assumed Skyworks RFX2401C: PA ~25 dB,
+  LNA 12 dB / NF 2.5 dB, always in line), SMA-K, 2.54 mm DIP pins: SPI + CE + CSN + IRQ, 3.3 V.
+  PA/LNA switching is inside the module. Mature drivers (RF24 library, ports for the Pico).
+- **Power setting:** RF_PWR = −18 dBm gives about **+7 dBm at the SMA** (ESTIMATE from the PA gain;
+  Ebyte publishes no table). With a 1 dB pigtail and a 4.5 dBi patch that is 10.5 dBm e.i.r.p., so a
+  **≥ 0.5 dB pad** (buy 1/2/3 dB SMA pads) brings it to 10.0. With the 2 dBi QM whip no pad is needed
+  (+8 dBm e.i.r.p.). **T0 must measure the real output** with a power meter / SA before any field test.
+- Sensitivity in the model: chip value (−94 dBm @250 kbps), LNA ignored. Ebyte quotes ~−96 for the
+  SMD sister part; T2 decides.
+- **Backup:** E01-ML01SP4 (same radio, SMD 14.85 × 18 mm, u.FL) if ET prefers to solder it to the carrier.
+- **Do not buy** E01C-* parts or no-name "nRF24L01+PA+LNA" boards: Ebyte's own E01C manual says
+  Si24R1 clone. Check the chip on arrival (register behaviour, RPD bit).
+- The Adafruit RFM69HCW order (old D-R2) is **cancelled**.
+- **Shopping (order by Fri 16-Oct; prices and EU lead time still to verify):** 10 × E01-ML01DP5
+  (2 boxes × 2 antennas, 4 bench, 2 spare), 2 × E01-ML01SP4, a set of SMA pads (1, 2, 3 dB, ×2),
+  6 × SMA-to-u.FL / SMA pigtails (~10 cm) for the patches, 2 × 2.4 GHz SMA whips (QM, bench).
+
+**Reverse if:** T0 shows the output at RF_PWR −18 cannot be padded to ≤ 10 dBm e.i.r.p. without losing
+> 3 dB, or T2 shows a clone/poor receiver. Fallback: E01-ML01SP4, then a no-PA module.
+
+## D-R4 (draft) — MRM access: one channel per team (FDMA)
+
+**Status:** Draft for the inter-team meeting · **Owner:** RT
+
+- Four teams, each on its own channel, all at 250 kbps. Proposal: **RF_CH 24 / 49 / 74 / 82**
+  (2424 / 2449 / 2474 / 2482 MHz): three sit in the gaps between WiFi channels 1/6/11 at 25 MHz spacing,
+  the fourth at the band edge, 8 MHz from its neighbour.
+- Near-far is the real limit (ARQ means both ends transmit). Another team's box at 2 m with patches
+  aligned arrives **55 dB above** our 260 m signal; side-on (~10 dB rejection per patch) 35 dB; at 10 m,
+  41 / 21 dB. nRF24 selectivity at 250 kbps: −50 dB beyond 6 MHz, −60 dB beyond 25 MHz.
+  So: the 25 MHz pairs are safe even co-located; **the 74/82 pair needs ≥ 10 m between those two
+  teams' boxes** (or side-on placement). Ask the organisers for ≥ 10 m spacing at each end anyway.
+- Final channel numbers after the campus 2.4 GHz survey (Andrian): if eduroam is not on 1/6/11 there,
+  shift the plan.
+
+## D-R5b — Antennas: two FR4 patches per box, vertical, front and back
+
+**Status:** Proposed (9-Oct-26; two antennas per box are allowed, per Santiago) · **Owner:** RT
+
+- **The patches must stand vertically.** A patch radiates broadside; flat on the carrier PCB in a box
+  lying flat it points at the sky and is ~5–10 dB down at the horizon. So each patch is its own small
+  board (≈ 60 × 60 mm, FR4 1.6 mm, same KiCad project/lab order as the carrier) fixed to a box wall,
+  fed by an SMA/u.FL pigtail. **Vertical linear polarisation** (feed on the bottom edge), agreed with
+  the other teams for NM.
+- One patch on the front wall, one on the back: SRI/MRM aim the front one at the peer; in NM the
+  chain neighbours sit on both sides. **One E01 module per patch** (two per box): no RF switch or RF
+  layout on our PCB, both radios can listen at once (selection diversity), TX on the one facing the peer.
+- Patch for 2.44 GHz on FR4 (εr 4.4, h 1.6 mm, transmission-line model): **W 37.4 × L 28.9 mm**,
+  inset-fed 50 Ω. Expected 4–5 dBi on FR4 [ASSUMPTION, model uses 4.5]. Bandwidth only ~27 MHz
+  (VSWR < 2) while FR4 εr ±0.2 moves f0 by **±55 MHz**, and the box wall pulls it lower. So: fab a
+  **tuning coupon** with L = 28.0 / 28.5 / 29.0 / 29.5 / 30.0 mm, measure S11 inside the closed box on a
+  VNA (Prof. Santos, RF lab), keep the length centred on our channel. It only has to cover our 1 MHz
+  channel, not the whole ISM band.
+- Height: the box is 7 cm tall outside; a 60 mm board needs ~62 mm inside (measure the IKEA box). If it
+  does not fit, use a 55 mm ground (some gain loss) or ask whether the box may stand on edge (Atenea Q4).
+- Quick Mode antenna: 2 dBi SMA whip straight on the E01 (+8 dBm e.i.r.p., no pad). Rules: antennas
+  need not be final at QM.
+- Review with Prof. Puente / Prof. Santos before the board order. T5 compares patch vs whip in the box.
+
+## D-R1 — Primary band: 869.40–869.65 MHz (centre 869.525 MHz) — *superseded 9-Oct-26 by D-R1b*
 
 **Status:** Proposed (working baseline 4-Oct-26) · **Owner:** RT
 
@@ -27,7 +115,7 @@ session and no later than Fri 16-Oct.
 **Reverse if:** the other teams converge on 2.4 GHz for NM, or Atenea rules the competition
 schedule out of the 10 % budget.
 
-## D-R2 — Module: HopeRF RFM69HCW, 868 MHz variant (Semtech SX1231H)
+## D-R2 — Module: HopeRF RFM69HCW, 868 MHz variant (Semtech SX1231H) — *superseded 9-Oct-26 by D-R2b*
 
 **Status:** Proposed (working baseline 4-Oct-26) · **Owner:** RT → handed to ET
 
@@ -61,7 +149,7 @@ test T2 must confirm 100 kbps PER before QM.
 **Reverse if:** T2 shows 100 kbps sensitivity worse than −95 dBm, or Atenea bans the chip.
 Fallback: Si4463 (same band, same link budget, more effort).
 
-## D-R5 (initial) — Antenna for QM: λ/4 inverted-L wire, top of the box
+## D-R5 (initial) — Antenna for QM: λ/4 inverted-L wire, top of the box — *superseded 9-Oct-26 by D-R5b*
 
 **Status:** Proposed · **Owner:** RT
 
@@ -95,6 +183,6 @@ Fallback: Si4463 (same band, same link budget, more effort).
 
 | ID | Decision | Target |
 |---|---|---|
-| D-R3 | NM PHY shared by all teams (draft: `NM_PHY_PROPOSAL.md`) | draft 16-Oct, frozen by week 6 |
-| D-R4 | MRM access plan (own 868 slot, shared 250 kHz split, or 2.4 GHz add-on) | week 8–9 |
-| D-R5 | Final antenna | week 8 |
+| D-R3 | NM PHY shared by all teams: redo `NM_PHY_PROPOSAL.md` for nRF24 (250 kbps, common address, CRC-16, no auto-ACK) | draft 16-Oct, frozen by week 6 |
+| D-R4 | MRM channel plan (draft above: RF_CH 24/49/74/82); agree with the 3 other teams after the WiFi survey | inter-team meeting, then week 8–9 |
+| D-R5b | Patch tuning coupon + VNA, patch vs whip in T5 | week 8 |
