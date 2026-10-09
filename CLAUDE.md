@@ -26,7 +26,7 @@ Classes and tutor meetings are on **Fridays**. Week 2 = Fri 2-Oct-26.
 
 | Date | Milestone |
 |---|---|
-| Fri 16-Oct-26 | Proposed (not yet agreed) RT band + module decision |
+| Fri 16-Oct-26 | Proposed (not yet agreed) RT band + module decision; order radios + antennas (10–12 day delivery) |
 | Fri 4-Dec-26 | Pretest |
 | Fri 11-Dec-26 | Competition / project deadline (week 12) |
 | Fri 18-Dec-26 | Presentations |
@@ -104,7 +104,7 @@ Classes and tutor meetings are on **Fridays**. Week 2 = Fri 2-Oct-26.
 - [ ] Sign-off of D-R1/D-R2/D-R5 (RT + PM)
 - [ ] D-R3 NM common PHY with other teams (draft ready)
 - [ ] D-R4 MRM access plan (week 8–9)
-- [ ] D-R5 final antenna (week 8)
+- [ ] D-R5 final antenna: Molex vs wire in test T5, consultant review (week 8)
 
 **Next up:**
 - [ ] Share the radio brief + new radio/ docs with Andrian and Marcos; get sign-off
@@ -113,7 +113,9 @@ Classes and tutor meetings are on **Fridays**. Week 2 = Fri 2-Oct-26.
 - [ ] Order by 16-Oct: 3 × Adafruit RFM69HCW (PID 3070), 4 × Molex 211140-0100, 3 × u.FL; then T0 + T2 before QM
 - [ ] Start the KiCad session with `hw/KICAD_SESSION_PROMPT.md` (carrier PCB draft for ET)
 - [ ] Write the HAL for whichever micro ET picks
-- [ ] Share the hardware proposal with ET; get their micro choice + RFM69 footprint by 16-Oct
+- [ ] Share the hardware proposal (v0.2) with ET; get their micro choice + OK on the Adafruit breakout by 16-Oct
+- [ ] Measure the IKEA 365+ box inside dimensions (the KiCad session needs them for the board outline)
+- [ ] Andrian: research map or Noise & Interference sheet? (asked 9-Oct); campus interference survey is the open item
 - [ ] Atenea Q6–Q9 (USB through the foil; combo boards; role switch; encoding + output name) go with the others
 - [ ] Share the protocol proposal with PT (Ibrahim, Guillem, Sofia); get agreement by 16-Oct; PT owner for NM gossip talks
 
@@ -142,9 +144,10 @@ what's pending.
 - Radio brief v0.3 and hardware page v0.2 republished (Adafruit breakout, antenna, shopping list,
   cost ≈€55–65 with lab PCB). PDFs re-exported to `briefs/` and the Windows folder; old versions removed.
 - Wrote `hw/KICAD_SESSION_PROMPT.md` for a new session to design the carrier PCB with the KiCad MCP.
-- **Start next session with:** the KiCad prompt, or the outcome of Fri 16-Oct (sign-off, order placed?).
 - Now a git repo: background sessions edit in a worktree (`.claude/worktrees/`, ignored). Santiago
   allowed pushing early commits straight to main.
+- End of day: radio driver 154 checks, sim 11/11 scenarios, phy_config all checks OK.
+- **Start next session with:** the KiCad prompt, or the outcome of Fri 16-Oct (sign-off, order placed?).
 
 ### 2026-10-07
 - Read the full competition rules for hardware constraints. Key ones: one micro module only; no
