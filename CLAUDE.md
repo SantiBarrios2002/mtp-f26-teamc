@@ -120,6 +120,10 @@ Classes and tutor meetings are on **Fridays**. Week 2 = Fri 2-Oct-26.
 - [ ] Share brief v0.4 / hw v0.3 / pt v0.3 + `NM_PHY_PROPOSAL.md` v0.2 and the MRM channel plan with the teams
 - [ ] Write the Pico 2 HAL for `nrf24_hal_t` once ET confirms the pin map; MRM 4-team + two-radio sim scenarios
 - [ ] Patch: tuning-coupon board + VNA session with Prof. Santos; review with Prof. Puente
+- [ ] **ON HOLD (9-Oct):** CST MCP for the patch design. Santiago is asking the radio teacher which CST version
+      the team may install on laptops. Then: review the code of `teslawei/mcp-cst-studio` (live on Windows, or
+      offline VBA from WSL) or `woson-L` CST-MCP (CST 2026 Python API) before installing; `mcp-openems` as a
+      free cross-check. Nothing installed yet.
 - [ ] Measure the IKEA 365+ box inside dimensions (patch boards need ~62 mm inner height)
 - [ ] Marcos posts `ATENEA_QUESTIONS.md` (Q2 now obsolete; Q3, Q4, Q10 updated)
 - [ ] Share the protocol proposal with PT (Ibrahim, Guillem, Sofia); PT owner for NM gossip talks
