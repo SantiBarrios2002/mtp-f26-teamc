@@ -124,6 +124,8 @@ what's pending.
 - Created the public GitHub repo `mtp-f26-teamc` (Santiago: OK if other teams see it). Excluded `docs/`
   and added `briefs/` (PDF exports), a README, and a sample-generator fallback to repo text when
   the course PDFs are missing (2.67×; all 11 sim tests still pass).
+- Antennas: the RFM69HCW has none (only a 50 Ω ANT pad). Shortlist added to D-R5: Molex 211140 flex,
+  Taoglas FXP895 flex, Linx ANT-868-HETH helical, Ignion NN chip. Wire λ/4 (86 mm) stays the QM antenna.
 
 ### 2026-10-07
 - Read the full competition rules for hardware constraints. Key ones: one micro module only; no

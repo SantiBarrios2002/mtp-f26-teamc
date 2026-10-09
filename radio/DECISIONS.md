@@ -63,6 +63,14 @@ Fallback: Si4463 (same band, same link budget, more effort).
   lever (+12 dB going from 0.5 to 1.0 m at both ends).
 - In parallel, buy one 868 MHz u.FL FPC or helical antenna for an A/B comparison in T5.
 - Ask Concepción Santos / Carles Puente to review before the final choice (week 8).
+- Shortlist for the final antenna (9-Oct-26, datasheet figures; buy with the radios for test T5).
+  The RFM69HCW has no antenna, only a 50 Ω ANT pad, so add a u.FL next to it:
+  | Antenna | Size | 868 MHz figures | Notes |
+  |---|---|---|---|
+  | Molex 211140-0100 (flex, u.FL, 100 mm cable) | 38 × 10 mm | 0.3 dBi peak, > 55 % eff. | Smallest; sticks vertically on the box wall near the top |
+  | Taoglas FXP895.07.0200C (flex, u.FL) | 69.3 × 20 mm | 1.9 dBi peak, 52 % eff. | Better gain; 69 mm barely fits the 70 mm box height |
+  | Linx ANT-868-HETH (helical, through-hole) | 25.4 × 15.3 × 8.9 mm | 5.6 dBi peak (on Linx's eval board) | Solders to the carrier PCB; needs its ground plane; real gain in the box will be lower |
+  | Ignion NN chip booster | ~ a few mm | depends on matching network | Needs a matching network + VNA tuning on the PCB; Carles Puente co-founded Ignion |
 
 ## Open
 
