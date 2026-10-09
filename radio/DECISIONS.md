@@ -96,6 +96,27 @@ session and no later than Fri 16-Oct.
   need not be final at QM.
 - Review with Prof. Puente / Prof. Santos before the board order. T5 compares patch vs whip in the box.
 
+**Alternative asked 9-Oct: one omni for RX and TX, one E01 per box.** The E01 can't reach the cap
+by itself (+7 dBm out, no lower step than −18 dBm in the chip), so with a 2 dBi omni and a 1 dB pigtail
+it radiates 8 dBm, 2 dB under the cap, and the receive side also loses the patch's 2.5 dB:
+**−4 dB on every link** vs D-R5b.
+
+| Build (h 0.75 m) | e.i.r.p. | SRI 70 m | MRM 260 m | MRM at 1.0 m | NM 100 m (−10 dB) |
+|---|---|---|---|---|---|
+| Two patches (D-R5b) | 10.0 | +27.0 | **+4.4** | +9.3 | +10.9 |
+| One omni 2 dBi, pigtail | 8.0 | +23.0 | **+0.4** | +5.3 | +6.9 |
+| One omni on the SMA (no pigtail) | 8.7 | +24.4 | +1.8 | +6.7 | +8.3 |
+| One omni, 0 dBi in the box | 6.0 | +19.0 | −3.6 | +1.3 | +2.9 |
+| One omni + 100 mW FHSS (Atenea Q3 yes) | 18.0 | +33.0 | +10.4 | +15.3 | +16.9 |
+
+- For it: simplest hardware (no patch boards, no VNA tuning, one radio), off-the-shelf antenna, no
+  aiming, covers every direction in NM.
+- Against: MRM at 260 m has no margin at 0.75 m, and an omni can't reject a neighbouring team side-on
+  (the 74/82 pair would need ~15–20 m between boxes instead of 10 m).
+- Verdict: only if the antennas can sit at ≥ 1.0 m or Atenea allows 100 mW FHSS. A middle option
+  keeps the omni's strengths: **one patch (front, for SRI/MRM) + one omni (for NM)**, one E01 each:
+  +4.4 dB on MRM and all-round coverage in NM. The carrier PCB keeps footprint B for any of the three.
+
 ## D-R1 — Primary band: 869.40–869.65 MHz (centre 869.525 MHz) — *superseded 9-Oct-26 by D-R1b*
 
 **Status:** Proposed (working baseline 4-Oct-26) · **Owner:** RT

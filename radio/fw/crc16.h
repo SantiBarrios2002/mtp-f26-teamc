@@ -1,7 +1,7 @@
 /* MTP-F26 Team C - CRC-16/CCITT-FALSE (poly 0x1021, init 0xFFFF, no reflection,
  * no final XOR; check value 0x29B1 for "123456789").
- * Used in the NM common PHY, where hardware CRC is off because vendors differ
- * (SX1231 uses the CCITT polynomial, CC1101 uses x^16+x^15+x^2+1). */
+ * Used end to end in NM frames (across relays), on top of the nRF24's hardware CRC,
+ * which only protects one hop. */
 #ifndef CRC16_H
 #define CRC16_H
 

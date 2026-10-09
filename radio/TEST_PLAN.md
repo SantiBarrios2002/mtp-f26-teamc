@@ -1,69 +1,90 @@
-# Radio test plan — RFM69HCW 868 MHz
+# Radio test plan — nRF24L01+ / Ebyte E01-ML01DP5, 2.4 GHz
 
-Version 0.1, 4-Oct-26 · Owner: RT · Expected values come from `linkbudget.py` (flat-earth,
-worst-case ground bounce, antennas at 0.75 m, 0 dBi, −1 dB container).
+Version 0.2, 9-Oct-26 (v0.1 was for the RFM69 at 868 MHz, superseded) · Owner: RT · Expected
+values come from `linkbudget.py` (flat earth, worst-case ground bounce, antennas at 0.75 m,
+−1 dB container, chip sensitivity −94 dBm at 250 kbps).
 
-**Duty-cycle rule for all tests:** use profile `BENCH_5MW` (869.85 MHz, +9 dBm, no limit)
-unless the test needs the competition band. In 869.40–869.65 MHz each box may transmit
-**≤ 360 s per hour**. Log every TX second, and leave the firmware duty-cycle guard enabled.
+No duty-cycle limit at 2.4 GHz: tests can be repeated freely. **Never exceed 10 dBm e.i.r.p.**:
+until T0 has measured the module, use RF_PWR −18 dBm only (`BENCH_WHIP` / `TEAM_250K` profiles).
 
-Record for every run: date, place, profile, distance, antenna, heights, box open/closed,
-frames sent/received, mean and min RSSI (driver: `last_rssi_x2 / 2` dBm).
+**The nRF24 has no RSSI.** It only has RPD, one bit that says "above −64 dBm at the chip" (about
+−76 dBm at the E01 antenna port, through its ~12 dB LNA). So every range test measures **PER**
+(frames lost out of frames sent), and levels come from the spectrum analyser or the model.
 
-## T0 — Bring-up (bench, as soon as modules arrive)
+Record for every run: date, place, profile, RF_CH, distance, antenna, heights, box open/closed,
+pad, frames sent/received.
 
-1. Wire one module to the micro; run `rfm69_init`. Pass: returns `RFM69_OK`.
-   `RFM69_ERR_SPI` means a wiring/NSS problem; `RFM69_ERR_VERSION` means the wrong chip or
-   the module isn't powered.
-2. Two boxes, 1 m apart, `BENCH_5MW`: 1 000 frames of 64 B. Pass: ≥ 999 received, RSSI ≈ −20
-   to −40 dBm.
+## T0 — Bring-up and output power (bench, the day the modules arrive) — **gate for any field test**
 
-## T2 — Sensitivity / PER vs bit rate (bench) — **gate for D-R2 before Quick Mode**
+1. Wire one E01 to the Pico (SPI + CSN + CE, 3.3 V with ≥ 100 µF near the module); run
+   `nrf24_init`. Pass: `NRF24_OK`. `NRF24_ERR_SPI` = wiring/CSN; `NRF24_ERR_NOT_PLUS` = an old
+   nRF24L01 (no 250 kbps), return it.
+2. **Conducted output power** at RF_PWR −18 / −12 dBm, SMA straight into the spectrum analyser or
+   power meter (lab, ≥ 20 dB attenuator in front if the instrument needs it). Expected ~+7 /
+   ~+13 dBm (estimate). Write the value into `E01_PA_GAIN_DB` (`phy_config.py`) and `p_pa_dbm`
+   (`linkbudget.py`), then pick the pad so that output + cable + pad + antenna gain ≤ 10 dBm.
+3. Clone check: the chip marking says nRF24L01P (Nordic), and the TX/RX current at the bench supply
+   matches the E01 datasheet. A Si24R1 clone usually shows a different current and a weaker T2.
+4. Two boxes 1 m apart, `BENCH_WHIP`: 1 000 frames of 32 B. Pass: ≥ 999 received.
 
-Without an attenuator we lower TX power and move the boxes apart (corridor):
-1. For `SRI_100K` and `ROBUST_38K4` settings (moved to 869.85 MHz), step the PA from +9 down to
-   +2 dBm and the distance up until PER rises.
-2. Send 1 000 frames per point; log PER and RSSI.
-3. Find the RSSI where PER = 1 %. That is our measured sensitivity.
+## T2 — Sensitivity / PER at 250 kbps (bench, conducted) — **gate for D-R2b before Quick Mode**
 
-Pass: 100 kbps reaches PER ≤ 1 % at RSSI ≤ **−95 dBm** (model uses −100; datasheet gives none
-above 38.4 kbps). If it is worse than −95, reopen D-R2 (Si4463 fallback) and update
-`linkbudget.py` with the measured value.
+TX E01 → coax → lab step attenuator (≥ 100 dB total incl. fixed pads) → RX E01, both modules in
+shielded boxes or far apart so nothing leaks around the attenuator.
+1. Start at 60 dB, then add 2 dB steps; 1 000 frames per step; log PER.
+2. Received level = output measured in T0 − attenuation − cable loss. The level where PER = 1 %
+   is our sensitivity. Repeat at 1 Mbps (`TEAM_1M`).
+
+Pass: PER ≤ 1 % at ≤ **−92 dBm** at 250 kbps (model uses −94; the LNA should give ~−96). If it is
+worse than −90, suspect a clone or a bad module, and update `linkbudget.py` with the measured value.
 
 ## T4 — Range, open box (campus, line of sight)
 
-Profile `BENCH_5MW`, boxes on ~70 cm supports. Distances 10 / 70 / 150 / 260 m.
+Boxes on ~70 cm supports, `BENCH_WHIP` (2 dBi whip on the SMA, 9 dBm e.i.r.p.), then the patches.
+Distances 10 / 70 / 150 / 260 m, 1 000 frames each, our channel.
 
-| Distance | Expected RSSI | Expected margin |
-|---|---|---|
-| 10 m | −43 dBm | +57 dB |
-| 70 m | −71 dBm | +29 dB |
-| 150 m | −85 dBm | +16 dB |
-| 260 m | −94 dBm | +6 dB |
+| Distance | Model level, whip | Margin, whip | Model level, patches | Margin, patches |
+|---|---|---|---|---|
+| 10 m | −55 dBm | +39 dB | −53 dBm | +41 dB |
+| 70 m | −69 dBm | +25 dB | −67 dBm | +27 dB |
+| 150 m | −82 dBm | +12 dB | −80 dBm | +14 dB |
+| 260 m | −92 dBm | +2 dB | −90 dBm | +4 dB |
 
-Then **one** 2-minute file transfer at 70 m with `SRI_100K` (competition band, ~115 s of TX)
-to measure goodput. Pass: ≥ 10 000 lines of ~100 B, or within 10 % of the model's 67 kbps
-goodput.
-
-Fit the measured RSSI against the model: the difference is the real multipath/medium loss,
-which replaces the −1 dB / 0 dB assumptions in the workbook.
+Pass: PER ≤ 1 % at 70 m and 150 m; at 260 m record the PER at 0.75 m and at 1.0 m antenna height
+(the model says +5 dB for the extra 25 cm). Then one 2-minute file transfer at 70 m: pass if all
+10 000 lines arrive (simulator: ~28 s at 5 % loss).
 
 ## T5 — Closed box and antenna A/B
 
-Same as T4 at 70 m and 260 m, box closed. Compare the inverted-L wire against the bought
-FPC/helical antenna, and the antenna at the top of the box against the bottom.
-Pass: closed-box margin at 260 m ≥ +10 dB with `SRI_100K` power (+17 dBm). The model expects
-+14 dB minus the extra container loss we measure.
+As T4 at 70 m and 260 m with the box closed. Compare: whip vs patch, patch at the top of the wall
+vs the middle, and (D-R5b) the front patch vs the back patch aimed away (front-to-back ratio).
+Pass: closed-box PER ≤ 1 % at 260 m with the patches. The patch length is chosen before this on the
+VNA (tuning coupon, D-R5b).
 
-## T13 — Spectrum and e.r.p. (lab, with a spectrum analyser)
+## T13 — Spectrum and e.i.r.p. (lab, spectrum analyser)
 
-1. Carrier offset of each module (CW or long preamble): replaces the ±20 ppm assumption
-   (`XTAL_PPM` in `phy_config.py`).
-2. 99 % occupied bandwidth at 100 kbps. Pass: whole emission inside 869.40–869.65 MHz
-   including the measured offset.
-3. Conducted power at +17 dBm. Estimate e.r.p. with the antenna gain. Pass: ≤ 500 mW
-   (expected ~27 mW). Put the plot in the ANNEX.
+1. Carrier offset of each module (CW mode: `RF_SETUP` CONT_WAVE + PLL_LOCK): replaces the ±60 ppm
+   assumption (`XTAL_PPM`).
+2. 99 % occupied bandwidth at 250 kbps and 1 Mbps on RF_CH 82 (highest MRM channel). Pass: whole
+   emission below 2483.5 MHz including the offset.
+3. Conducted power (T0) + measured antenna gain (lab) → e.i.r.p. Pass: ≤ 10 dBm. Put the plot in the ANNEX.
+
+## T14 — Campus 2.4 GHz survey (Andrian) — **decides the D-R4 channel plan**
+
+Firmware loop on one E01 with the whip at the SRI, MRM and NM sites, at the competition hour if
+possible: for RF_CH 0..83, RX for 200 µs, read RPD (`nrf24_carrier`), 1 000 sweeps. Output: % busy
+per channel. An SDR (HackRF) or the lab analyser gives the same picture with levels. Pass: each of
+the four MRM channels and RF_CH 80 (NM) is busy < 5 % of the time; otherwise move the plan.
+
+## T15 — MRM near-far (two of our boxes as the "other team")
+
+Link at 260 m on RF_CH 74; a third box 2 m and 10 m from the receiver sends continuously on
+RF_CH 82 (8 MHz away) and then RF_CH 49 (25 MHz away). Pass: PER of the 260 m link stays ≤ 1 % with
+the interferer at 10 m on RF_CH 82 and at 2 m on RF_CH 49 (model: −50 / −60 dB selectivity vs
+41 / 55 dB near-far).
+
+## T16 — NM interop (with the other teams, see `NM_PHY_PROPOSAL.md`)
 
 ## Order
 
-T0 → T2 (before QM) → T4 → T13 (book the lab) → T5 → re-run T4/T5 with the final antenna.
+T0 → T2 (before QM) → T14 (survey) → T4 → T13 (book the lab) → T5 → T15 → T16.

@@ -2,10 +2,9 @@
 
 For Marcos to post as project leader. Draft 4-Oct-26 · Team C Radio Team.
 
-1. **Allowed chips.** Are proprietary FSK packet transceivers allowed, specifically the HopeRF
-   RFM69HCW (Semtech SX1231H)? It implements no standard wireless protocol. Is a chip also
-   acceptable if it *can* do a standard PHY we never use (e.g. Si4463, which lists IEEE
-   802.15.4g)?
+1. **Allowed chips.** Are proprietary GFSK packet transceivers allowed, specifically the Nordic
+   nRF24L01+ on the Ebyte E01-ML01DP5 module (with a PA/LNA)? Its Enhanced ShockBurst packet
+   format is Nordic-proprietary, not a standard wireless protocol, and it has no Bluetooth.
 2. *(Obsolete 9-Oct-26: all teams moved to 2.4 GHz, which has no duty-cycle limit. Do not post.)*
    **Duty cycle and the schedule.** In 869.40–869.65 MHz (CNAF UN-39) each transmitter is
    limited to 10 % of any hour (360 s). A 2-minute sending round uses ~115 s. How will the
