@@ -1,0 +1,15 @@
+# Course material (copyrighted: rules, slides, AN5142, CNAF poster) - get it from Atenea
+docs/*
+!docs/README.md
+
+# Build output and generated test data
+build/
+radio/fw/build/
+proto/build/
+__pycache__/
+*.pyc
+.mypy_cache/
+
+# Windows download markers
+*:Zone.Identifier
+*Zone.Identifier

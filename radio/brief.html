@@ -1,0 +1,553 @@
+<title>Team C Radio Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column (~74ch) with wide tables and the chart breaking out to 1040px; a spectrum strip as the signature element. */
+:root{
+  --bg:#f6f7f7; --panel:#ffffff; --ink:#14191b; --ink-2:#4b5559; --ink-3:#768186;
+  --rule:#dfe3e4; --rule-2:#eceff0; --accent:#0e5b6b; --accent-wash:#e3eff1;
+  --ok:#0b7a3b; --ok-wash:#e4f3ea; --warn:#9a5b00; --warn-wash:#fbf0dc; --bad:#b3261e; --bad-wash:#fbe6e4;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
+  --band-free:#e9ecec; --band-ours:#0e5b6b; --band-ours-ink:#ffffff; --band-alarm:#d6dbdc;
+  --f-display:"Archivo",ui-sans-serif,system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121617; --panel:#1a1f21; --ink:#eef2f3; --ink-2:#b4bec2; --ink-3:#8a969b;
+  --rule:#2d3538; --rule-2:#232a2c; --accent:#6cc3d3; --accent-wash:#16343a;
+  --ok:#5fd18d; --ok-wash:#173327; --warn:#f0b452; --warn-wash:#3a2c13; --bad:#ff8a80; --bad-wash:#3d1c1a;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  --band-free:#262d30; --band-ours:#6cc3d3; --band-ours-ink:#0b1416; --band-alarm:#323b3e;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121617; --panel:#1a1f21; --ink:#eef2f3; --ink-2:#b4bec2; --ink-3:#8a969b;
+  --rule:#2d3538; --rule-2:#232a2c; --accent:#6cc3d3; --accent-wash:#16343a;
+  --ok:#5fd18d; --ok-wash:#173327; --warn:#f0b452; --warn-wash:#3a2c13; --bad:#ff8a80; --bad-wash:#3d1c1a;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  --band-free:#262d30; --band-ours:#6cc3d3; --band-ours-ink:#0b1416; --band-alarm:#323b3e;
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:400 15.5px/1.6 var(--f-body);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1040px;margin:0 auto;padding-inline:20px;padding-block:28px 64px}
+.col{max-width:74ch}
+h1,h2,h3{font-family:var(--f-display);font-stretch:85%;text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:clamp(2rem,4.4vw,2.9rem);font-weight:800;letter-spacing:-.01em}
+h2{font-size:1.45rem;font-weight:700;margin-top:3.2rem;padding-top:1.1rem;border-top:1px solid var(--rule)}
+h3{font-size:1.05rem;font-weight:700;margin-top:1.8rem}
+p{margin:.7rem 0}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+.eyebrow{font:500 .75rem/1.3 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.meta{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:.9rem;color:var(--ink-2);font-size:.9rem}
+.meta b{font-weight:600;color:var(--ink)}
+.lede{font-size:1.08rem;color:var(--ink-2);margin-top:1rem}
+.mono,.num{font-family:var(--f-mono);font-size:.92em}
+.num{font-variant-numeric:tabular-nums}
+.tag{display:inline-block;font:500 .68rem/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 6px;border-radius:3px;vertical-align:1px;white-space:nowrap}
+.t-rule{background:var(--accent-wash);color:var(--accent)}
+.t-ver{background:var(--ok-wash);color:var(--ok)}
+.t-asm{background:var(--warn-wash);color:var(--warn)}
+.t-est{background:var(--rule-2);color:var(--ink-2)}
+
+.bottom{margin-top:1.8rem;background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:20px 22px}
+.bottom h2{margin:0;padding:0;border:0;font-size:1.15rem}
+.bottom ol{margin:.8rem 0 0;padding-left:1.25rem;display:grid;gap:.55rem}
+.bottom li::marker{font-family:var(--f-mono);color:var(--ink-3)}
+
+/* spectrum strip */
+.strip{margin-top:1.2rem;overflow-x:auto}
+.strip svg{display:block;width:100%;min-width:640px;height:auto}
+.strip text{font-family:var(--f-mono)}
+.legend-row{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.82rem;color:var(--ink-2);margin-top:.5rem}
+.key{display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:-1px;margin-right:6px}
+
+/* tables */
+.tbl{overflow-x:auto;margin-top:1rem;border:1px solid var(--rule);border-radius:6px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{padding:8px 10px;text-align:left;vertical-align:top;border-bottom:1px solid var(--rule-2)}
+th{font:600 .74rem/1.3 var(--f-body);letter-spacing:.03em;text-transform:uppercase;color:var(--ink-3);background:var(--bg);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.r,th.r{text-align:right}
+td.num{white-space:nowrap}
+.pill{display:inline-block;font:600 .74rem/1 var(--f-body);padding:4px 7px;border-radius:999px;white-space:nowrap}
+.p-ok{background:var(--ok-wash);color:var(--ok)}
+.p-warn{background:var(--warn-wash);color:var(--warn)}
+.p-bad{background:var(--bad-wash);color:var(--bad)}
+.p-mute{background:var(--rule-2);color:var(--ink-2)}
+tr.hl td{background:var(--accent-wash)}
+.sub{color:var(--ink-3);font-size:.82rem}
+
+/* chart */
+.chart-card{margin-top:1.2rem;background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:16px 16px 10px}
+.chart-legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.82rem;color:var(--ink-2);margin-bottom:6px}
+.lk{display:inline-block;width:16px;height:2px;border-radius:1px;vertical-align:4px;margin-right:7px}
+.chart-wrap{position:relative}
+#chart{display:block;width:100%;height:auto;touch-action:pan-y}
+#chart text{font-family:var(--f-mono);font-size:11px;fill:var(--ink-3)}
+#chart .lbl{fill:var(--ink-2);font-size:11px}
+.tip{position:absolute;pointer-events:none;background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:8px 10px;font-size:.8rem;box-shadow:0 4px 14px rgba(0,0,0,.12);min-width:200px}
+.tip .h{font:500 .75rem var(--f-mono);color:var(--ink-3);margin-bottom:4px}
+.tip .row{display:flex;align-items:center;gap:8px;line-height:1.5}
+.tip .row b{font:600 .85rem var(--f-mono);min-width:56px;text-align:right;color:var(--ink)}
+.tip .row span{color:var(--ink-2)}
+details{margin-top:.6rem}
+summary{cursor:pointer;color:var(--ink-2);font-size:.85rem}
+
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px;margin-top:1rem}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:14px 16px;min-width:0}
+.card h3{margin:0 0 .3rem}
+.card p{margin:.4rem 0;font-size:.92rem}
+.card ul{margin:.4rem 0 0;padding-left:1.1rem;font-size:.92rem}
+ul.tight{padding-left:1.2rem}
+ul.tight li{margin:.25rem 0}
+.callout{border-left:3px solid var(--warn);background:var(--warn-wash);padding:10px 14px;border-radius:0 6px 6px 0;margin-top:1rem;font-size:.93rem}
+.callout.info{border-left-color:var(--accent);background:var(--accent-wash)}
+footer{margin-top:3rem;color:var(--ink-3);font-size:.82rem;border-top:1px solid var(--rule);padding-top:1rem}
+@media (max-width:560px){.wrap{padding-inline:16px} h2{margin-top:2.4rem}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header class="col">
+  <div class="eyebrow">MTP F26 · Team C · Radio Team</div>
+  <h1>Radio brief: band, module and link budget</h1>
+  <div class="meta"><span><b>Team</b> Santiago, Andrian, Marcos</span><span><b>Version</b> 0.2 · Sun 4 Oct 2026</span><span><b>Next session</b> Fri 9 Oct (week 3)</span></div>
+  <p class="lede"><b>New in v0.2:</b> a working baseline (868 MHz + RFM69HCW), the duty-cycle limit that now drives our planning, the electronics handoff, a shared-PHY proposal for the other teams, and the test plan.</p>
+  <p class="lede">What the rules allow, what the numbers say, and what we need to decide first. Every figure carries a tag:
+    <span class="tag t-rule">rule</span> from the competition rules PDF,
+    <span class="tag t-ver">verified</span> against a primary source,
+    <span class="tag t-asm">assumption</span> to be replaced by a measurement, and
+    <span class="tag t-est">estimate</span>.</p>
+</header>
+
+<section class="bottom col" aria-labelledby="bl">
+  <h2 id="bl">Bottom line</h2>
+  <ol>
+    <li><b>Only two bands allow a 2-minute continuous round:</b> 869.40–869.65 MHz (500 mW e.r.p., ≤10 % duty cycle) and 2.4 GHz (10 mW e.i.r.p.). The 433 MHz antenna does not fit the box and the other 868 sub-bands fail on duty cycle. <span class="tag t-ver">verified</span></li>
+    <li><b>868 MHz has range to spare but limited speed.</b> Margin is +36 to +44 dB at 70 m and +19 to +21 dB at 260 m. The 250 kHz channel caps the air rate at about 100–150 kbps. That just covers our goal of 10,000 lines in 2 minutes (it needs ~67 kbps of useful throughput), so compression gives us the safety margin.</li>
+    <li><b>2.4 GHz (nRF24L01+) has speed to spare but thin margin:</b> +6 to +9 dB at 70 m and −4.6 dB at 260 m with small whips. Directional 8 dBi patches bring 260 m back to +7 dB.</li>
+    <li><b>Our band choice depends on the other teams.</b> In NM every team must share one physical layer, and in MRM every team transmits at once. So the band talks with the other teams have to start <em>this week</em>, before we commit to a module. The module is frozen at Quick Mode, and changing it afterwards costs every bonus. <span class="tag t-rule">rule</span></li>
+    <li><b>Working baseline (v0.2):</b> 868 MHz at 869.525 MHz with the <b>RFM69HCW</b> at +17 dBm and 100 kbps. 2.4 GHz nRF24 stays an add-on option for MRM. Santiago adopted this on 4 Oct so build work can start. <b>Andrian and Marcos still need to sign off, by Fri 16 Oct at the latest.</b></li>
+    <li><b>Duty cycle, not range or speed, is the binding limit.</b> A 2-minute sending round is about 115 s of TX, and each box may transmit 360 s per hour. That is <b>about 3 full rounds per hour per box, campus tests included</b>. Repeated tests therefore go to 869.70–870.00 MHz (5 mW, no duty-cycle limit).</li>
+  </ol>
+</section>
+
+<section aria-labelledby="s-base">
+  <div class="col"><h2 id="s-base">Working baseline <span class="pill p-warn" style="vertical-align:4px">sign-off pending</span></h2>
+  <p>We chose the RFM69HCW over the Si4463 because range is not our problem at 868 MHz. It is easier to bring up (mature open drivers, simple registers), other teams are more likely to pick it, which helps the shared NM link, and it carries less protocol-ban risk (the Si4463 advertises 802.15.4g). We run it at <b>+17 dBm</b>, because the datasheet limits +20 dBm to 1 % duty cycle. <span class="tag t-ver">verified</span></p>
+  <p>Four radio profiles are defined. Each is checked against the CNAF sub-band (Carson bandwidth plus ±20 ppm crystal drift per box <span class="tag t-asm">assumption</span>) and the SX1231 datasheet limits.</p></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Profile</th><th>Use</th><th class="r">Carrier</th><th class="r">Rate</th><th class="r">Deviation</th><th class="r">PA</th><th class="r">e.r.p.</th><th>Fits band?</th></tr></thead>
+    <tbody>
+      <tr class="hl"><td class="mono">SRI_100K</td><td>Our own link: SRI, QM, MRM</td><td class="num r">869.525 MHz</td><td class="num r">100 kbps</td><td class="num r">±50 kHz</td><td class="num r">+17 dBm</td><td class="num r">27 mW</td><td><span class="pill p-ok">yes · 7.6 kHz guard</span></td></tr>
+      <tr><td class="mono">ROBUST_38K4</td><td>Fallback if 100 kbps fails (+5 dB)</td><td class="num r">869.525 MHz</td><td class="num r">38.4 kbps</td><td class="num r">±38.4 kHz</td><td class="num r">+17 dBm</td><td class="num r">27 mW</td><td><span class="pill p-ok">yes · 50 kHz guard</span></td></tr>
+      <tr><td class="mono">NM_COMMON</td><td>Shared with all teams (draft, below)</td><td class="num r">869.525 MHz</td><td class="num r">100 kbps</td><td class="num r">±50 kHz</td><td class="num r">+17 dBm</td><td class="num r">27 mW</td><td><span class="pill p-ok">yes · 7.6 kHz guard</span></td></tr>
+      <tr><td class="mono">BENCH_5MW</td><td>Bench and repeated tests, no duty limit</td><td class="num r">869.850 MHz</td><td class="num r">100 kbps</td><td class="num r">±50 kHz</td><td class="num r">+9 dBm</td><td class="num r">4 mW</td><td><span class="pill p-ok">yes · 32.6 kHz guard</span></td></tr>
+    </tbody>
+  </table></div>
+  <div class="grid2">
+    <div class="card"><h3>Duty-cycle budget per box</h3>
+      <p>The model uses selective-repeat ARQ with one ACK per 16 frames.</p>
+      <ul>
+        <li>Sender TX per 2-min round: <b class="num">115.5 s</b></li>
+        <li>Receiver TX (ACKs) per round: <b class="num">2.0 s</b></li>
+        <li>Budget in any one hour: <b class="num">360 s</b> (10 %)</li>
+        <li>Full sending rounds per hour: <b class="num">≈3.1</b></li>
+      </ul>
+      <p>The firmware refuses to transmit past 95 % of the hourly budget.</p></div>
+    <div class="card"><h3>Firmware ready before the hardware</h3>
+      <p>A portable C driver for the RFM69 is written and passes 154 host tests against a simulated radio. It needs only five board functions (SPI select and transfer, reset pin, delay, millisecond clock), so it fits whichever micro the electronics team picks.</p>
+      <p>It includes the duty-cycle guard and the software CRC for the NM link. Not yet run on a real module.</p></div>
+    <div class="card"><h3>First antenna (QM)</h3>
+      <p>A λ/4 wire (86 mm) bent as an inverted-L: about 60 mm up the box wall, 25 mm under the lid. Cut it long and trim for best RSSI.</p>
+      <p>Mount the radio and antenna <b>as high in the box as possible</b>. Also buy one 868 MHz FPC or helical antenna for an A/B test. Final antenna by week 8, after the antenna consultants review it.</p></div>
+  </div>
+</section>
+
+<section class="col" aria-labelledby="s-rules">
+  <h2 id="s-rules">Rules that constrain the radio</h2>
+  <ul class="tight">
+    <li>Unlicensed spectrum only, compliant with <b>CNAF 2017 UN notes</b>, IEEE C95.1 (RF exposure) and ESD safety. <span class="tag t-rule">rule</span></li>
+    <li><b>No chip implementing a standard wireless access protocol</b> (WiFi, Bluetooth, 2G–5G, ZigBee; the Session 1 slide adds NB-IoT and <b>LoRa</b>). <span class="tag t-rule">rule</span></li>
+    <li><b>Nothing may stick out of the 15 × 15 × 7 cm IKEA 365+ box</b> except buttons, switches and connectors, so the antennas go inside. The box sits on a support of <b>about 70 cm</b>. <span class="tag t-rule">rule</span></li>
+    <li><b>Modules shown at Quick Mode are final.</b> Antennas, batteries and mechanics may still change. <span class="tag t-rule">rule</span></li>
+    <li>Distances: SRI <b>70 m</b>, MRM <b>~260 m</b> with every team transmitting at once, NM relays along the South and East rims with no line of sight end to end. The link must recover from "attacks". <span class="tag t-rule">rule</span></li>
+    <li>Scoring counts only the <b>first unbroken run of byte-identical lines</b> (~10,000 lines of ~100 B), so reliability beats raw bit rate. <span class="tag t-rule">rule</span></li>
+  </ul>
+</section>
+
+<section aria-labelledby="s-reg">
+  <div class="col"><h2 id="s-reg">Spectrum: what CNAF allows</h2>
+  <p>I checked the BOE text of CNAF 2017 (the edition the rules cite) against the current CNAF 2021; the limits we care about are the same in both. Duty cycle is measured over any one hour (ERC/REC 70-03). <span class="tag t-ver">verified</span></p></div>
+
+  <div class="strip" role="img" aria-label="Spectrum map of 868.0 to 870.0 MHz. Only 869.40 to 869.65 MHz allows 500 mW e.r.p. at 10 percent duty cycle; the other generic sub-bands allow 25 mW at 1 or 0.1 percent, or 5 mW.">
+    <svg viewBox="0 0 1000 150" xmlns="http://www.w3.org/2000/svg">
+      <!-- x = (f - 868.0) / 2.0 * 960 + 20 -->
+      <rect x="20" y="30" width="288" height="56" fill="var(--band-free)"/>
+      <rect x="308" y="30" width="48" height="56" fill="var(--band-alarm)"/>
+      <rect x="356" y="30" width="240" height="56" fill="var(--band-free)"/>
+      <rect x="596" y="30" width="96" height="56" fill="var(--band-alarm)"/>
+      <rect x="692" y="30" width="120" height="56" fill="var(--band-ours)"/>
+      <rect x="812" y="30" width="24" height="56" fill="var(--band-alarm)"/>
+      <rect x="836" y="30" width="144" height="56" fill="var(--band-free)"/>
+      <g stroke="var(--bg)" stroke-width="2">
+        <line x1="308" y1="30" x2="308" y2="86"/><line x1="356" y1="30" x2="356" y2="86"/><line x1="596" y1="30" x2="596" y2="86"/>
+        <line x1="692" y1="30" x2="692" y2="86"/><line x1="812" y1="30" x2="812" y2="86"/><line x1="836" y1="30" x2="836" y2="86"/>
+      </g>
+      <text x="164" y="54" text-anchor="middle" font-size="13" fill="var(--ink)">25 mW e.r.p.</text>
+      <text x="164" y="72" text-anchor="middle" font-size="11" fill="var(--ink-2)">LBT or ≤1 % DC</text>
+      <text x="476" y="54" text-anchor="middle" font-size="13" fill="var(--ink)">25 mW e.r.p.</text>
+      <text x="476" y="72" text-anchor="middle" font-size="11" fill="var(--ink-2)">LBT or ≤0.1 % DC</text>
+      <text x="752" y="54" text-anchor="middle" font-size="13" font-weight="600" fill="var(--band-ours-ink)">500 mW e.r.p.</text>
+      <text x="752" y="72" text-anchor="middle" font-size="11" fill="var(--band-ours-ink)">≤10 % DC</text>
+      <text x="908" y="54" text-anchor="middle" font-size="13" fill="var(--ink)">5 / 25 mW</text>
+      <text x="908" y="72" text-anchor="middle" font-size="11" fill="var(--ink-2)">none / ≤1 % DC</text>
+      <g fill="var(--ink-3)" font-size="11" text-anchor="middle">
+        <text x="20" y="104">868.0</text><text x="308" y="104">868.6</text><text x="356" y="120">868.7</text>
+        <text x="596" y="104">869.2</text><text x="692" y="120">869.40</text><text x="812" y="104">869.65</text><text x="980" y="104">870.0</text>
+      </g>
+      <text x="20" y="18" font-size="11" fill="var(--ink-3)">CNAF UN-39 · 868–870 MHz · MHz scale to width</text>
+      <text x="752" y="142" text-anchor="middle" font-size="11" fill="var(--ink-2)">250 kHz · centre 869.525 MHz</text>
+    </svg>
+  </div>
+  <div class="legend-row"><span><i class="key" style="background:var(--band-ours)"></i>usable for a 2-min round</span><span><i class="key" style="background:var(--band-free)"></i>generic SRD, too restrictive</span><span><i class="key" style="background:var(--band-alarm)"></i>reserved for alarms</span></div>
+
+  <div class="tbl"><table>
+    <thead><tr><th>Band</th><th>Note</th><th>Max power</th><th>Access condition</th><th>2-min round?</th><th>Comment</th></tr></thead>
+    <tbody>
+      <tr><td class="num">433.05–434.04 MHz</td><td>UN-30</td><td>10 mW e.r.p.</td><td>≤10 % DC</td><td><span class="pill p-warn">legal, impractical</span></td><td>λ/4 = 17 cm, longer than the box.</td></tr>
+      <tr><td class="num">868.0–868.6 MHz</td><td>UN-39</td><td>25 mW e.r.p.</td><td>LBT+AFA or ≤1 % DC</td><td><span class="pill p-bad">no</span></td><td>1 % is 36 s per hour.</td></tr>
+      <tr class="hl"><td class="num">869.40–869.65 MHz</td><td>UN-39</td><td>500 mW e.r.p.</td><td>LBT+AFA or ≤10 % DC</td><td><span class="pill p-ok">yes</span></td><td>360 s per hour. SRI 120 s + MRM 120 s = 240 s, even if the same box transmits both. The whole 250 kHz may be one high-speed channel.</td></tr>
+      <tr><td class="num">869.70–870.00 MHz</td><td>UN-39</td><td>5 mW e.r.p.</td><td>none</td><td><span class="pill p-warn">yes, 5 mW</span></td><td>Weak, but a possible low-power NM fallback.</td></tr>
+      <tr class="hl"><td class="num">2400–2483.5 MHz</td><td>UN-85 b)</td><td>10 mW e.i.r.p.</td><td>none (EN 300 440)</td><td><span class="pill p-ok">yes</span></td><td>83.5 MHz wide: room for every team on its own channel in MRM. Shared with campus WiFi.</td></tr>
+      <tr><td class="num">2400–2483.5 MHz</td><td>UN-85 a)</td><td>100 mW e.i.r.p.</td><td>mitigation required (EN 300 328)</td><td><span class="pill p-mute">ask Atenea</span></td><td>+10 dB, but it is the WiFi/RLAN class. Whether a student FHSS or LBT design counts needs an official answer.</td></tr>
+      <tr><td class="num">5725–5875 MHz</td><td>UN-130</td><td>25 mW e.i.r.p.</td><td>none</td><td><span class="pill p-warn">legal, impractical</span></td><td>Few cheap non-WiFi modules on the market.</td></tr>
+    </tbody>
+  </table></div>
+  <p class="sub">Sources: <a href="https://www.boe.es/buscar/doc.php?id=BOE-A-2017-12318">CNAF 2017, BOE-A-2017-12318</a> · <a href="https://www.boe.es/diario_boe/txt.php?id=BOE-A-2021-21346">CNAF 2021, BOE-A-2021-21346</a>. In Spain 915 MHz is not an SRD band, so US "915 MHz" module variants are not usable.</p>
+</section>
+
+<section aria-labelledby="s-lb">
+  <div class="col"><h2 id="s-lb">Link budget</h2>
+  <p>This uses the course method: Maxim AN5142 with the course correction (no ½ factor in the flat-earth formula) and the course spreadsheet's worst-case ground bounce (a = 1, |cos|). Inputs:</p>
+  <ul class="tight">
+    <li>antennas at 0.75 m (70 cm support plus position in the box) <span class="tag t-asm">assumption</span></li>
+    <li>−1 dB container loss and 0 dB multipath on open campus paths <span class="tag t-asm">assumption</span></li>
+    <li>868 MHz antenna gain 0 dBi in the box <span class="tag t-asm">assumption</span></li>
+    <li>sensitivities from the datasheets <span class="tag t-ver">verified</span></li>
+  </ul></div>
+
+  <div class="chart-card">
+    <div class="eyebrow" style="margin-bottom:6px">Flat-earth link margin vs distance · dB above receiver sensitivity</div>
+    <div class="chart-legend" id="legend"></div>
+    <div class="chart-wrap">
+      <svg id="chart" viewBox="0 0 1000 420" role="img" aria-label="Line chart of link margin in dB against distance from 40 to 1000 metres, log scale, for four radio configurations. Data table below."></svg>
+      <div class="tip" id="tip" hidden></div>
+    </div>
+    <details>
+      <summary>Show as table</summary>
+      <div class="tbl"><table id="ctable"><thead><tr><th>Configuration</th><th class="r">70 m</th><th class="r">100 m</th><th class="r">150 m</th><th class="r">260 m</th><th class="r">Max range</th></tr></thead><tbody></tbody></table></div>
+    </details>
+  </div>
+
+  <div class="tbl"><table>
+    <thead><tr><th>Scenario</th><th class="r">EIRP dBm</th><th class="r">Rx dBm</th><th class="r">Sens. dBm</th><th class="r">Margin dB</th><th class="r">With −20 dB multipath</th></tr></thead>
+    <tbody id="lbtable"></tbody>
+  </table></div>
+  <p class="sub">Full AN5142 rows for all 12 scenarios are in <span class="mono">radio/MTP-F26_TeamC_Radio_LinkBudget.xlsx</span>; every cell is a live formula and inputs are in blue. AN5142's default −20 dB multipath is for cluttered paths. Tests T4 and T5 on campus will tell us which number to use.</p>
+
+  <div class="grid2">
+    <div class="card"><h3>Antenna height is the biggest lever</h3>
+      <p>At 0.75 m the ground reflection takes over beyond ~13 m (868) or ~37 m (2.4 GHz). Past that point loss grows 40 dB per decade and hardly depends on frequency: P<sub>R</sub> ≈ EIRP·G<sub>R</sub>·(h₁h₂)²/d⁴.</p>
+      <p>Raising both antennas from 0.5 to 1.0 m adds <b>+12 dB</b>. Mounting the antenna at the top of the box is free margin. Whether "about 70 cm" lets us use a taller support is a question for Atenea.</p></div>
+    <div class="card"><h3>The 868 MHz antenna is longer than the box is tall</h3>
+      <p>A 868 MHz quarter-wave is ~86 mm; the box is 70 mm tall. Our options are a helical or meander antenna (shorter, lower gain), a bent inverted-L, a PCB antenna, or a horizontal wire or dipole laid across the 21 cm diagonal.</p>
+      <p>A horizontal antenna gives up the all-round coverage NM needs. At 2.4 GHz a vertical λ/4 is 31 mm and fits easily. Even at −5 dBi per end, 868 keeps +30 dB at 70 m and +9 dB at 260 m.</p></div>
+    <div class="card"><h3>Datasheet limits that matter</h3>
+      <ul>
+        <li><b>RFM69HCW:</b> +20 dBm is limited to <b>1 % duty cycle</b> (datasheet §3.3.7), so plan on +17 dBm for 2-minute rounds. <span class="tag t-ver">verified</span></li>
+        <li><b>CC1101 at 250 kBaud</b> needs a 540 kHz filter, wider than the 250 kHz sub-band. Its practical ceiling there is ~100 kbps.</li>
+        <li><b>nRF24L01+:</b> 32 B maximum payload, 0 dBm. PA+LNA variants must be turned down to stay within 10 mW e.i.r.p.</li>
+      </ul></div>
+  </div>
+</section>
+
+<section aria-labelledby="s-tp">
+  <div class="col"><h2 id="s-tp">Throughput: does the file fit in 2 minutes?</h2>
+  <p>About 1 MB in 120 s needs <b>66.7 kbps</b> of useful throughput, or 33.3 kbps with 2× compression. The model assumes selective-repeat ARQ with one ACK per 16 frames, 1 ms turnaround <span class="tag t-asm">assumption</span>, and 85 % efficiency for the micro and USB <span class="tag t-asm">assumption</span>. Bandwidth uses Carson's rule <span class="tag t-est">estimate</span>.</p></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Configuration</th><th class="r">Air rate</th><th class="r">Goodput</th><th class="r">Lines, raw</th><th class="r">Lines, 2× comp.</th><th>Fits 250 kHz?</th></tr></thead>
+    <tbody>
+      <tr><td>868 FSK, 60 B payload</td><td class="num r">38.4 kbps</td><td class="num r">26.2 kbps</td><td class="num r">3,924</td><td class="num r">7,849</td><td><span class="pill p-ok">yes · ~77 kHz</span></td></tr>
+      <tr class="hl"><td>868 FSK, 60 B payload</td><td class="num r">100 kbps</td><td class="num r">67.3 kbps</td><td class="num r">10,000</td><td class="num r">10,000</td><td><span class="pill p-ok">yes · ~200 kHz</span></td></tr>
+      <tr><td>868 GFSK h = 0.5, 60 B payload</td><td class="num r">150 kbps</td><td class="num r">99.9 kbps</td><td class="num r">10,000</td><td class="num r">10,000</td><td><span class="pill p-warn">tight · ~225 kHz</span></td></tr>
+      <tr><td>868 shared in MRM (5 × 50 kHz)</td><td class="num r">19.2 kbps</td><td class="num r">13.1 kbps</td><td class="num r">1,970</td><td class="num r">3,940</td><td><span class="pill p-ok">yes · ~38 kHz each</span></td></tr>
+      <tr><td>nRF24 2.4 GHz, 32 B payload</td><td class="num r">250 kbps</td><td class="num r">158.7 kbps</td><td class="num r">10,000</td><td class="num r">10,000</td><td><span class="pill p-mute">n/a</span></td></tr>
+      <tr><td>nRF24 2.4 GHz, 32 B payload</td><td class="num r">1 Mbps</td><td class="num r">594.1 kbps</td><td class="num r">10,000</td><td class="num r">10,000</td><td><span class="pill p-mute">n/a</span></td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout">At 868 MHz the whole file only arrives at ≥100 kbps. Sensitivity then drops about 5 dB (−105 → ~−100 dBm on RFM69 <span class="tag t-est">estimate</span>), but at 70 m we still keep more than +35 dB. In MRM it is different: if every team shares 869.4–869.65 MHz, each gets roughly 2,000–4,000 lines. That is why the MRM band is a negotiation with the other teams.</div>
+</section>
+
+<section aria-labelledby="s-mod">
+  <div class="col"><h2 id="s-mod">Module shortlist</h2>
+  <p>Figures were read from each datasheet on 3 Oct 2026. Prices are still <b>TO VERIFY</b>: the electronics team should get distributor quotes, because cost only pays out among NM winners.</p></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Module</th><th>Band</th><th>Max Tx</th><th>Sensitivity</th><th>Max rate</th><th>Protocol-ban risk</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><b>Si4463</b> (RFM26W and similar)</td><td>142–1050 MHz</td><td class="num">+20 dBm · 85 mA</td><td class="num">−109 @40k · −104 @100k · −97 @500k</td><td class="num">500 kbps (1 M 4GFSK)</td><td><span class="pill p-warn">low–med</span></td><td>Best sensitivity and power. No duty-cycle limit found. The datasheet advertises IEEE 802.15.4g PHY support, so ask on Atenea. Steeper setup (register sets from Silicon Labs' WDS tool).</td></tr>
+      <tr class="hl"><td><b>RFM69HCW</b> (SX1231H) <span class="pill p-warn">baseline</span></td><td>868 variant</td><td class="num">+17 dBm cont. · 95 mA</td><td class="num">−114 @4.8k · −105 @38.4k</td><td class="num">300 kbps</td><td><span class="pill p-ok">low</span></td><td>+20 dBm only at ≤1 % duty cycle. Huge Arduino libraries (RadioHead, LowPowerLab). No sensitivity figure above 38.4 kbps, so measure it.</td></tr>
+      <tr><td><b>CC1101</b></td><td>779–928 MHz</td><td class="num">+12 dBm · 34 mA</td><td class="num">−104 @38.4k · −95 @250k</td><td class="num">500 kBaud</td><td><span class="pill p-ok">low</span></td><td>Cheapest and lowest power. Thinner MRM margin; capped at ~100 kbps in the 250 kHz sub-band.</td></tr>
+      <tr><td><b>nRF24L01+</b></td><td>2.4 GHz</td><td class="num">0 dBm · 11.3 mA</td><td class="num">−94 @250k · −85 @1M · −82 @2M</td><td class="num">2 Mbps</td><td><span class="pill p-warn">low–med</span></td><td>Speed. Enhanced ShockBurst is Nordic-proprietary, so ask on Atenea. Clones are common, so buy from a distributor.</td></tr>
+      <tr><td><b>CC2500</b></td><td>2.4 GHz</td><td class="num">+1 dBm</td><td class="num">−89 @250k · −83 @500k</td><td class="num">500 kBaud</td><td><span class="pill p-ok">low</span></td><td>Alternative to nRF24.</td></tr>
+      <tr><td>LoRa chips (SX127x/RFM95, SX126x, SX1280)</td><td>—</td><td colspan="3" class="sub">—</td><td><span class="pill p-bad">exclude</span></td><td>LoRa is named on the Session 1 slide. Using one of these chips in FSK-only mode is still a compliance risk.</td></tr>
+      <tr><td>Radio SoCs (CC1310, nRF52, ESP32, STM32WL)</td><td>—</td><td colspan="3" class="sub">—</td><td><span class="pill p-bad">exclude</span></td><td>They contain a micro (a second micro module) and often BLE, ZigBee or LoRa stacks.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section aria-labelledby="s-dec">
+  <div class="col"><h2 id="s-dec">Decisions and who they touch</h2></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Decision</th><th>Owner</th><th>Depends on</th><th>Affects</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td><b>D-R1</b> Primary band (868 vs 2.4 GHz vs both)</td><td>Radio</td><td>Other teams' NM/MRM band intentions; Atenea answers</td><td>Module, antennas, firmware</td><td><span class="pill p-warn">baseline: 868 MHz</span><br><span class="sub">sign-off by Fri 16 Oct</span></td></tr>
+      <tr><td><b>D-R2</b> Radio module (frozen at Quick Mode)</td><td>Radio → handed to electronics</td><td>D-R1; bench sensitivity at ≥100 kbps</td><td>PCB, micro interface (SPI), BoM</td><td><span class="pill p-warn">baseline: RFM69HCW</span><br><span class="sub">sign-off by Fri 16 Oct; gate: test T2</span></td></tr>
+      <tr><td><b>D-R3</b> NM physical layer shared with all teams (frequency, rate, modulation, sync word, CRC)</td><td>Radio + protocols</td><td>What modules the other teams buy</td><td>NM bonus (+2 to +2.5)</td><td><span class="pill p-mute">draft ready</span><br><span class="sub">send to teams; freeze by week 6</span></td></tr>
+      <tr><td><b>D-R4</b> MRM access plan (own band, shared channel split, or 2.4 GHz channels)</td><td>Radio</td><td>Number of teams and their bands; tests at 260 m</td><td>MRM (+1)</td><td><span class="pill p-mute">open</span><br><span class="sub">week 8–9</span></td></tr>
+      <tr><td><b>D-R5</b> Antenna per round (in-box gain, polarisation, mounting height)</td><td>Radio</td><td>Container measurements (open vs closed)</td><td>Mechanics, drop test</td><td><span class="pill p-warn">QM: inverted-L wire</span><br><span class="sub">final by week 8</span></td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout info"><b>Reverse D-R2 if</b> test T2 shows worse than −95 dBm sensitivity at 100 kbps, or Atenea bans the chip. The fallback is the Si4463: same band and link budget, more bring-up effort. <b>Reverse D-R1 if</b> the other teams converge on 2.4 GHz for NM, or the competition schedule cannot fit the 10 % budget.</div>
+</section>
+
+
+<section aria-labelledby="s-et">
+  <div class="col"><h2 id="s-et">Handoff to electronics</h2>
+  <p>The radio team picks the transceiver and the electronics team adapts and picks the micro. This is what the board must provide. Part: <b>HopeRF RFM69HCW, 868 MHz version</b> (the 433 and 915 versions have different matching). The bare module is a small SMD part. For QM a ready-made breakout is easier, e.g. Adafruit "RFM69HCW 868/915 MHz" with regulator and level shifting. Package size and part number are <b>to verify</b> against the datasheet and distributor before ordering. Order 4 (2 boxes + 2 spares) from a distributor, not a marketplace.</p></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Pin</th><th>At the micro</th><th>What matters</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">3.3V</td><td>supply</td><td><b>3.3 V only, not 5 V tolerant.</b> Budget ≥ 120 mA peak (≈95 mA TX at +17 dBm). 10 µF + 100 nF next to the pin.</td></tr>
+      <tr><td class="mono">SCK MOSI MISO</td><td>SPI master</td><td>Mode 0, MSB first, ≤ 10 MHz. 4–8 MHz is plenty: 100 kbps is only 12.5 kB/s.</td></tr>
+      <tr><td class="mono">NSS</td><td>GPIO out</td><td>Chip select, active low.</td></tr>
+      <tr><td class="mono">RESET</td><td>GPIO out</td><td><b>Active high.</b> Held low in normal use; the driver pulses it at start-up.</td></tr>
+      <tr><td class="mono">DIO0</td><td>GPIO in, IRQ-capable</td><td>Packet sent (TX) / packet ready (RX).</td></tr>
+      <tr><td class="mono">DIO1</td><td>optional</td><td>Only for frames longer than 64 B.</td></tr>
+      <tr><td class="mono">ANT</td><td>—</td><td>50 Ω to a short wire or u.FL. Keep it away from the micro, battery and USB.</td></tr>
+    </tbody>
+  </table></div>
+  <p class="col sub">Also needed on the board: no WiFi/BT chip, and no micro with a built-in radio (protocol ban). What we need back from electronics: the micro and pin map, a power check that the battery and regulator hold the 120 mA TX peak, and module lead time so T2 runs before Quick Mode.</p>
+</section>
+
+<section aria-labelledby="s-nm">
+  <div class="col"><h2 id="s-nm">Shared NM radio settings: draft for all teams</h2>
+  <p>In Network Mode every box must hear every other team's box. This is our opening proposal. It works on the three popular sub-GHz chips (SX1231/RFM69, CC1101, Si4463), so teams can still buy hardware that supports it.</p></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Setting</th><th>Value</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Carrier</td><td class="num">869.525 MHz</td><td>Only 868 sub-band with 500 mW and 10 % duty cycle</td></tr>
+      <tr><td>Modulation · rate · deviation</td><td class="num">2-GFSK BT 0.5 · 100 kbps · ±50 kHz</td><td>Fits 250 kHz with drift; all three chips support it</td></tr>
+      <tr><td>Max TX power</td><td class="num">≤ +17 dBm conducted</td><td>Every box stays well under 500 mW e.r.p.</td></tr>
+      <tr><td>Preamble · sync word</td><td class="num">4 × 0xAA · 0x2D 0xD4</td><td>That sync word is the CC1101 and RadioHead default</td></tr>
+      <tr><td>Length</td><td>1 byte, variable, max 64</td><td>Same convention on all three chips; fits a 64 B FIFO</td></tr>
+      <tr><td>Whitening · Manchester</td><td>off</td><td>The chips' whitening isn't guaranteed compatible</td></tr>
+      <tr><td>CRC</td><td>hardware off; <b>CRC-16/CCITT-FALSE in software</b>, last 2 bytes, big-endian</td><td>Hardware CRCs differ between vendors. Check value 0x29B1 for "123456789"</td></tr>
+    </tbody>
+  </table></div>
+  <p class="col sub">Fallback for chips that can't do 100 kbps: 38.4 kbps, ±38.4 kHz, same framing. Interop test before week 6: every pair of boxes exchanges 1 000 frames at 10 m on 869.85 MHz (same settings, outside the duty-limited band); pass is ≥ 99 % with valid CRC. Addressing and relaying sit above this and are for the protocols teams.</p>
+</section>
+
+<section aria-labelledby="s-test">
+  <div class="col"><h2 id="s-test">Test plan</h2>
+  <p>Use the bench profile (869.85 MHz, 4 mW, no limit) unless a test needs the competition band. Log every TX second there. For each run, record place, profile, distance, heights, box open or closed, frames sent and received, and RSSI.</p></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Test</th><th>What</th><th>Pass</th><th>When</th></tr></thead>
+    <tbody>
+      <tr><td class="num">T0</td><td>Bring-up: driver start-up, then 1 000 frames at 1 m</td><td>Start-up OK; ≥ 999 frames received</td><td>modules arrive</td></tr>
+      <tr class="hl"><td class="num">T2</td><td>Sensitivity vs bit rate: step TX power and distance down a corridor, 1 000 frames per point</td><td>1 % packet errors at RSSI ≤ <b>−95 dBm</b> at 100 kbps. <b>Gate for the module decision.</b></td><td>before Quick Mode</td></tr>
+      <tr><td class="num">T4</td><td>Range, open box, line of sight, at 10 / 70 / 150 / 260 m; then one 2-min transfer at 70 m</td><td>RSSI near the model (table below); ≥ 10 000 lines</td><td>after T2</td></tr>
+      <tr><td class="num">T5</td><td>Closed box; wire vs bought antenna; antenna at the top vs the bottom of the box</td><td>≥ +10 dB margin at 260 m at +17 dBm</td><td>after T4</td></tr>
+      <tr><td class="num">T13</td><td>Spectrum analyser: carrier offset, 99 % occupied bandwidth, conducted power</td><td>Whole emission inside 869.40–869.65 MHz; e.r.p. ≤ 500 mW. Plot goes in the ANNEX.</td><td>book the lab</td></tr>
+    </tbody>
+  </table></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Expected (model)</th><th class="r">10 m</th><th class="r">70 m</th><th class="r">150 m</th><th class="r">260 m</th></tr></thead>
+    <tbody>
+      <tr><td>Bench profile, +9 dBm · RSSI</td><td class="num r">−43 dBm</td><td class="num r">−71 dBm</td><td class="num r">−85 dBm</td><td class="num r">−94 dBm</td></tr>
+      <tr><td>Bench profile · margin</td><td class="num r">+57 dB</td><td class="num r">+29 dB</td><td class="num r">+16 dB</td><td class="num r">+6 dB</td></tr>
+      <tr><td>SRI profile, +17 dBm · margin</td><td class="num r">+65 dB</td><td class="num r">+37 dB</td><td class="num r">+24 dB</td><td class="num r">+14 dB</td></tr>
+    </tbody>
+  </table></div>
+  <p class="col sub">The difference between measured and expected RSSI is the real multipath and container loss. It replaces the −1 dB / 0 dB assumptions in the workbook.</p>
+</section>
+
+<section aria-labelledby="s-week">
+  <div class="col"><h2 id="s-week">This week (to Fri 9 Oct)</h2>
+  <p>A suggested split. Swap names as you like; per the course slides, owners volunteer and set their own due dates.</p></div>
+  <div class="grid2">
+    <div class="card"><h3>Regulation and outreach</h3><ul>
+      <li>Read UN-30, UN-39 and UN-85 in the BOE text and sign off the regulatory sheet.</li>
+      <li>Draft the Atenea questions below; Marcos posts them as project leader.</li>
+      <li>Contact every team's leader: which band and module are you considering? Propose a joint NM physical-layer meeting.</li></ul></div>
+    <div class="card"><h3>Modules and budget</h3><ul>
+      <li>Check prices and stock for the 4 modules (Mouser, DigiKey, LCSC, TME).</li>
+      <li>Collect each module's register and setup notes for 100 kbps in 250 kHz.</li>
+      <li>Update the workbook with any better datasheet numbers.</li></ul></div>
+    <div class="card"><h3>Antennas and test plan</h3><ul>
+      <li>Antenna options for 868 and 2.4 inside a 15 × 15 × 7 box: size, gain, polarisation, price.</li>
+      <li>Write the test procedures: T2 bench sensitivity vs bit rate, T4/T5 range at 70 m open and closed, T13 spectrum and e.r.p.</li>
+      <li>Book Anna Umbert (spectrum regulation) and Concepción Santos / Carles Puente (antennas) for week 3–4 sessions.</li></ul></div>
+  </div>
+
+  <h3 class="col">Action items in the course format</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Item</th><th>Date asg.</th><th>Assigned to</th><th>Description</th><th>Status</th><th>Due date</th><th>End date</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td class="num">R1</td><td class="num">05/10/26</td><td>RT (tbd)</td><td>Regulatory sheet UN-30/39/85 verified and signed</td><td>Open</td><td class="num">09/10/26</td><td></td><td></td></tr>
+      <tr><td class="num">R2</td><td class="num">05/10/26</td><td>RT (tbd)</td><td>Atenea questions drafted and sent to Marcos for posting</td><td>Done</td><td class="num">07/10/26</td><td class="num">04/10/26</td><td>Draft ready (below)</td></tr>
+      <tr><td class="num">R3</td><td class="num">05/10/26</td><td>RT (tbd)</td><td>Band/module survey of all other teams; NM physical-layer meeting proposed</td><td>Open</td><td class="num">09/10/26</td><td></td><td></td></tr>
+      <tr><td class="num">R4</td><td class="num">05/10/26</td><td>RT (tbd)</td><td>Module price/stock table (4 candidates, 2 distributors each)</td><td>Open</td><td class="num">09/10/26</td><td></td><td></td></tr>
+      <tr><td class="num">R5</td><td class="num">05/10/26</td><td>RT (tbd)</td><td>Antenna options sheet for 868 and 2.4 inside the box</td><td>Open</td><td class="num">09/10/26</td><td></td><td></td></tr>
+      <tr><td class="num">R6</td><td class="num">05/10/26</td><td>RT (tbd)</td><td>Consultant sessions booked (AU; CS or CP)</td><td>Open</td><td class="num">09/10/26</td><td></td><td></td></tr>
+      <tr><td class="num">R7</td><td class="num">09/10/26</td><td>RT</td><td>Band and module decision (D-R1, D-R2) handed to electronics</td><td>In progress</td><td class="num">16/10/26</td><td></td><td>Baseline set 04/10; needs RT + PM sign-off</td></tr>
+      <tr><td class="num">R8</td><td class="num">04/10/26</td><td>RT (tbd)</td><td>NM radio settings proposal sent to every team's leader</td><td>Open</td><td class="num">09/10/26</td><td></td><td></td></tr>
+      <tr><td class="num">R9</td><td class="num">04/10/26</td><td>RT → ET</td><td>Electronics handoff reviewed with ET; pin map and power check returned</td><td>Open</td><td class="num">16/10/26</td><td></td><td></td></tr>
+      <tr><td class="num">R10</td><td class="num">04/10/26</td><td>ET</td><td>Order 4 × RFM69HCW 868 (after sign-off)</td><td>Open</td><td class="num">16/10/26</td><td></td><td></td></tr>
+      <tr><td class="num">R11</td><td class="num">04/10/26</td><td>RT</td><td>Tests T0 and T2 done; D-R2 confirmed or reversed</td><td>Open</td><td class="num">before QM</td><td></td><td></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section aria-labelledby="s-q">
+  <div class="col"><h2 id="s-q">Questions to ask</h2></div>
+  <div class="grid2">
+    <div class="card"><h3>Atenea forum (posted by the project leader)</h3><ul>
+      <li><b>Allowed chips.</b> Is a proprietary FSK transceiver like the RFM69HCW (SX1231H) allowed? It implements no standard protocol. Is a chip that <em>can</em> do a standard PHY we never use (e.g. Si4463, 802.15.4g) also acceptable?</li>
+      <li><b>Duty cycle and the schedule.</b> 869.40–869.65 MHz allows 10 % of any hour (360 s) per transmitter, and a 2-min sending round uses ~115 s. How will SRI, MRM, NM rounds and rehearsals be scheduled so teams stay within it? Is it assessed per transmitter?</li>
+      <li><b>2.4 GHz power.</b> May a non-WiFi design with frequency hopping or listen-before-talk use the 100 mW of UN-85 a), or must it stay at 10 mW (UN-85 b)?</li>
+      <li><b>Support height.</b> Is the support fixed at 70 cm or "about 70 cm"? May the antenna sit anywhere inside the box, e.g. under the lid?</li>
+      <li><b>Cooperation.</b> May teams agree a common NM radio setup and an MRM frequency split, sharing settings but not code?</li></ul></div>
+    <div class="card"><h3>Consultants</h3><ul>
+      <li><b>Anna Umbert</b> (spectrum regulation): can we rely on the 10 % duty cycle, or should we implement LBT+AFA (EN 300 220)? What e.r.p. evidence does she expect in the ANNEX?</li>
+      <li><b>Concepción Santos / Carles Puente</b> (antennas): best compact 868 antenna for a vertically polarised, omnidirectional pattern in a 70 mm-tall plastic box. How does a hand or the foil near the box detune it? Can we measure gain at the lab?</li>
+      <li><b>Paradells / Perelló</b> (protocols, with the protocols team): sharing one 250 kHz channel among N teams for MRM.</li></ul></div>
+  </div>
+</section>
+
+<footer>
+  <p>Files: <span class="mono">radio/MTP-F26_TeamC_Radio_LinkBudget.xlsx</span> (hand-in link budget, live formulas) · <span class="mono">radio/linkbudget.py</span> (same model for quick what-ifs) · <span class="mono">radio/build_workbook.py</span> · <span class="mono">radio/phy_config.py</span> (radio profiles and checks) · <span class="mono">radio/fw/</span> (driver and tests) · <span class="mono">radio/DECISIONS.md</span>, <span class="mono">HANDOFF_ET.md</span>, <span class="mono">NM_PHY_PROPOSAL.md</span>, <span class="mono">TEST_PLAN.md</span>, <span class="mono">ATENEA_QUESTIONS.md</span>. Ask Santiago for copies.</p>
+  <p>Primary sources: competition rules PDF (MTP F26, Network Upgrade III + Sustainability); Session #1 slides; AN5142 with the course annotations; CNAF 2017/2021 (BOE); datasheets for RFM69HCW v1.1, Si4463/61/60-C Rev 1.0, CC1101 SWRS061I, nRF24L01+ v1.0 and CC2500.</p>
+</footer>
+</div>
+
+<script>
+const DATA = {"d": [40.0, 43.4, 47.0, 50.9, 55.2, 59.8, 64.8, 70, 70.3, 76.1, 82.5, 89.4, 96.9, 100, 105.1, 113.9, 123.4, 133.7, 145.0, 150, 157.1, 170.3, 184.5, 200.0, 216.8, 234.9, 254.6, 260, 275.9, 299.1, 324.1, 351.3, 380.7, 412.6, 447.2, 484.7, 525.3, 569.3, 617.0, 668.7, 724.8, 785.5, 851.3, 922.7, 1000.0], "series": [{"name": "Si4463 \u00b7 868 MHz \u00b7 +20 dBm \u00b7 100 kbps", "m": [53.32, 51.92, 50.55, 49.17, 47.77, 46.39, 45.0, 43.67, 43.59, 42.22, 40.82, 39.43, 38.03, 37.49, 36.62, 35.23, 33.84, 32.45, 31.04, 30.45, 29.65, 28.25, 26.86, 25.46, 24.06, 22.66, 21.27, 20.9, 19.87, 18.47, 17.07, 15.67, 14.28, 12.88, 11.48, 10.08, 8.69, 7.29, 5.89, 4.49, 3.09, 1.7, 0.3, -1.1, -2.5], "rmax": 866}, {"name": "RFM69HCW \u00b7 868 MHz \u00b7 +17 dBm \u00b7 38.4 kbps", "m": [51.32, 49.92, 48.55, 47.17, 45.77, 44.39, 43.0, 41.67, 41.59, 40.22, 38.82, 37.43, 36.03, 35.49, 34.62, 33.23, 31.84, 30.45, 29.04, 28.45, 27.65, 26.25, 24.86, 23.46, 22.06, 20.66, 19.27, 18.9, 17.87, 16.47, 15.07, 13.67, 12.28, 10.88, 9.48, 8.08, 6.69, 5.29, 3.89, 2.49, 1.09, -0.3, -1.7, -3.1, -4.5], "rmax": 772}, {"name": "nRF24L01+ \u00b7 2.4 GHz \u00b7 1 Mbps \u00b7 2 dBi whips", "m": [18.16, 16.86, 15.57, 14.26, 12.93, 11.6, 10.25, 8.95, 8.88, 7.54, 6.17, 4.8, 3.42, 2.88, 2.03, 0.65, -0.73, -2.11, -3.51, -4.09, -4.89, -6.29, -7.67, -9.07, -10.47, -11.85, -13.25, -13.61, -14.64, -16.04, -17.44, -18.83, -20.23, -21.63, -23.02, -24.42, -25.82, -27.21, -28.61, -30.01, -31.41, -32.81, -34.2, -35.6, -37.0], "rmax": 118}, {"name": "nRF24L01+ \u00b7 2.4 GHz \u00b7 250 kbps \u00b7 8 dBi patches", "m": [39.16, 37.86, 36.57, 35.26, 33.93, 32.6, 31.25, 29.95, 29.88, 28.54, 27.17, 25.8, 24.42, 23.88, 23.03, 21.65, 20.27, 18.89, 17.49, 16.91, 16.11, 14.71, 13.33, 11.93, 10.53, 9.15, 7.75, 7.39, 6.36, 4.96, 3.56, 2.17, 0.77, -0.63, -2.02, -3.42, -4.82, -6.21, -7.61, -9.01, -10.41, -11.81, -13.2, -14.6, -16.0], "rmax": 398}]};
+const LB = [{"name": "SRI 70 m | RFM69HCW 868 | 38.4 kbps", "eirp": 16.5, "prx": -63.33, "sens": -105, "m": 41.67, "m20": 21.67}, {"name": "SRI 70 m | RFM69HCW 868 | 100 kbps", "eirp": 16.5, "prx": -63.33, "sens": -100, "m": 36.67, "m20": 16.67}, {"name": "SRI 70 m | Si4463 868 | 100 kbps", "eirp": 19.5, "prx": -60.33, "sens": -104, "m": 43.67, "m20": 23.67}, {"name": "SRI 70 m | CC1101 868 | 38.4 kbps", "eirp": 11.5, "prx": -68.33, "sens": -104, "m": 35.67, "m20": 15.67}, {"name": "SRI 70 m | nRF24 2.4G | 1 Mbps", "eirp": 2.0, "prx": -76.05, "sens": -85, "m": 8.95, "m20": -11.05}, {"name": "SRI 70 m | nRF24 2.4G | 2 Mbps", "eirp": 2.0, "prx": -76.05, "sens": -82, "m": 5.95, "m20": -14.05}, {"name": "MRM 260 m | RFM69HCW 868 | 38.4 kbps", "eirp": 16.5, "prx": -86.1, "sens": -105, "m": 18.9, "m20": -1.1}, {"name": "MRM 260 m | Si4463 868 | 100 kbps", "eirp": 19.5, "prx": -83.1, "sens": -104, "m": 20.9, "m20": 0.9}, {"name": "MRM 260 m | nRF24 2.4G | 250 kbps", "eirp": 2.0, "prx": -98.61, "sens": -94, "m": -4.61, "m20": -24.61}, {"name": "MRM 260 m | nRF24 2.4G | 250 kbps, 8 dBi patches", "eirp": 8.0, "prx": -86.61, "sens": -94, "m": 7.39, "m20": -12.61}, {"name": "NM hop 100 m | RFM69HCW 868 | 38.4 kbps, -10 dB obstr.", "eirp": 16.5, "prx": -79.51, "sens": -105, "m": 25.49, "m20": 5.49}, {"name": "NM hop 100 m | nRF24 2.4G | 250 kbps, -10 dB obstr.", "eirp": 2.0, "prx": -92.12, "sens": -94, "m": 1.88, "m20": -18.12}];
+(function(){
+  const svg = document.getElementById('chart'), tip = document.getElementById('tip');
+  const NS = 'http://www.w3.org/2000/svg';
+  const W = 1000, H = 420, m = {l:48, r:190, t:14, b:40};
+  const narrow = () => svg.getBoundingClientRect().width < 640;
+  const vars = ['--s1','--s2','--s3','--s4'];
+  const xmin = 40, xmax = 1000;
+  const allM = DATA.series.flatMap(s => s.m);
+  const ymin = Math.floor(Math.min(...allM)/10)*10, ymax = Math.ceil(Math.max(...allM)/10)*10;
+  function el(tag, attrs, parent){ const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); (parent||svg).appendChild(e); return e; }
+  function draw(){
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    const right = narrow() ? 16 : m.r;
+    const X = d => m.l + (Math.log10(d) - Math.log10(xmin)) / (Math.log10(xmax) - Math.log10(xmin)) * (W - m.l - right);
+    const Y = v => m.t + (ymax - v) / (ymax - ymin) * (H - m.t - m.b);
+    // grid + y ticks
+    for (let v = ymin; v <= ymax; v += 10){
+      el('line', {x1:m.l, x2:W-right, y1:Y(v), y2:Y(v), stroke: v === 0 ? 'var(--ink-3)' : 'var(--rule-2)', 'stroke-width': v === 0 ? 1.5 : 1});
+      el('text', {x:m.l-8, y:Y(v)+4, 'text-anchor':'end'}).textContent = (v > 0 ? '+' : '') + v;
+    }
+    el('text', {x:m.l+4, y:Y(0)-6, class:'lbl'}).textContent = '0 dB margin = at sensitivity';
+    // x ticks
+    [40, 70, 100, 200, 260, 400, 700, 1000].forEach(d => {
+      el('text', {x:X(d), y:H-m.b+18, 'text-anchor':'middle'}).textContent = d + ' m';
+    });
+    // reference distances
+    [[70,'SRI 70 m'],[260,'MRM 260 m']].forEach(([d,t]) => {
+      el('line', {x1:X(d), x2:X(d), y1:m.t, y2:H-m.b, stroke:'var(--ink-3)', 'stroke-width':1, 'stroke-dasharray':'3 4'});
+      el('text', {x:X(d)+5, y:m.t+12, class:'lbl'}).textContent = t;
+    });
+    // lines
+    DATA.series.forEach((s,i) => {
+      const dstr = s.m.map((v,k) => (k ? 'L' : 'M') + X(DATA.d[k]).toFixed(1) + ' ' + Y(v).toFixed(1)).join(' ');
+      el('path', {d:dstr, fill:'none', stroke:`var(${vars[i]})`, 'stroke-width':2, 'stroke-linejoin':'round', 'stroke-linecap':'round'});
+    });
+    // end labels with collision avoidance + leaders
+    if (!narrow()){
+      const ends = DATA.series.map((s,i) => ({i, y:Y(s.m[s.m.length-1]), v:s.m[s.m.length-1], name:s.name.split(' · ').slice(0,2).join(' · ') + (s.name.includes('patches') ? ' · patches' : s.name.includes('whips') ? ' · whips' : '')}));
+      const sorted = [...ends].sort((a,b) => a.y - b.y);
+      for (let k = 1; k < sorted.length; k++) if (sorted[k].y - sorted[k-1].y < 15) sorted[k].ly = (sorted[k-1].ly ?? sorted[k-1].y) + 15;
+      sorted.forEach(e => {
+        const ly = e.ly ?? e.y, x0 = W - right;
+        el('circle', {cx:x0, cy:e.y, r:4, fill:`var(${vars[e.i]})`, stroke:'var(--panel)', 'stroke-width':2});
+        el('line', {x1:x0+6, y1:e.y, x2:x0+14, y2:ly, stroke:'var(--ink-3)', 'stroke-width':1});
+        el('text', {x:x0+18, y:ly+4, class:'lbl'}).textContent = e.name + '  ' + (e.v > 0 ? '+' : '') + e.v.toFixed(0);
+      });
+    }
+    // hover layer
+    const cross = el('line', {y1:m.t, y2:H-m.b, stroke:'var(--ink-3)', 'stroke-width':1, visibility:'hidden'});
+    const dots = DATA.series.map((s,i) => el('circle', {r:4.5, fill:`var(${vars[i]})`, stroke:'var(--panel)', 'stroke-width':2, visibility:'hidden'}));
+    const hit = el('rect', {x:m.l, y:m.t, width:W-right-m.l, height:H-m.t-m.b, fill:'transparent', tabindex:0});
+    function show(k){
+      const x = X(DATA.d[k]);
+      cross.setAttribute('x1', x); cross.setAttribute('x2', x); cross.setAttribute('visibility','visible');
+      dots.forEach((c,i) => { c.setAttribute('cx', x); c.setAttribute('cy', Y(DATA.series[i].m[k])); c.setAttribute('visibility','visible'); });
+      tip.replaceChildren();
+      const h = document.createElement('div'); h.className = 'h'; h.textContent = 'd = ' + DATA.d[k] + ' m'; tip.appendChild(h);
+      DATA.series.forEach((s,i) => {
+        const r = document.createElement('div'); r.className = 'row';
+        const kk = document.createElement('i'); kk.className = 'lk'; kk.style.background = `var(${vars[i]})`; kk.style.marginRight = '0';
+        const b = document.createElement('b'); const v = s.m[k]; b.textContent = (v > 0 ? '+' : '') + v.toFixed(1) + ' dB';
+        const sp = document.createElement('span'); sp.textContent = s.name;
+        r.append(kk, b, sp); tip.appendChild(r);
+      });
+      tip.hidden = false;
+      const box = svg.getBoundingClientRect(), sc = box.width / W;
+      let left = x * sc + 14; if (left + tip.offsetWidth > box.width) left = x * sc - tip.offsetWidth - 14;
+      tip.style.left = Math.max(0, left) + 'px'; tip.style.top = (m.t * sc + 6) + 'px';
+    }
+    function hide(){ cross.setAttribute('visibility','hidden'); dots.forEach(c => c.setAttribute('visibility','hidden')); tip.hidden = true; }
+    function nearest(clientX){
+      const box = svg.getBoundingClientRect(), px = (clientX - box.left) / box.width * W;
+      let best = 0, bd = Infinity; DATA.d.forEach((d,k) => { const dd = Math.abs(X(d) - px); if (dd < bd){ bd = dd; best = k; } }); return best;
+    }
+    let cur = DATA.d.indexOf(70);
+    hit.addEventListener('pointermove', e => { cur = nearest(e.clientX); show(cur); });
+    hit.addEventListener('pointerleave', hide);
+    hit.addEventListener('focus', () => show(cur));
+    hit.addEventListener('blur', hide);
+    hit.addEventListener('keydown', e => { if (e.key === 'ArrowRight'){ cur = Math.min(DATA.d.length-1, cur+1); show(cur); e.preventDefault(); } if (e.key === 'ArrowLeft'){ cur = Math.max(0, cur-1); show(cur); e.preventDefault(); } });
+  }
+  // legend
+  const lg = document.getElementById('legend');
+  DATA.series.forEach((s,i) => { const sp = document.createElement('span'); const k = document.createElement('i'); k.className = 'lk'; k.style.background = `var(${vars[i]})`; sp.append(k, document.createTextNode(s.name)); lg.appendChild(sp); });
+  // chart table
+  const tb = document.querySelector('#ctable tbody');
+  DATA.series.forEach(s => {
+    const tr = document.createElement('tr'); const td0 = document.createElement('td'); td0.textContent = s.name; tr.appendChild(td0);
+    [70,100,150,260].forEach(d => { const td = document.createElement('td'); td.className = 'num r'; const v = s.m[DATA.d.indexOf(d)]; td.textContent = (v > 0 ? '+' : '') + v.toFixed(1) + ' dB'; tr.appendChild(td); });
+    const tdr = document.createElement('td'); tdr.className = 'num r'; tdr.textContent = s.rmax + ' m'; tr.appendChild(tdr); tb.appendChild(tr);
+  });
+  // scenario table
+  const lt = document.getElementById('lbtable');
+  LB.forEach(r => {
+    const tr = document.createElement('tr');
+    const td0 = document.createElement('td'); td0.textContent = r.name; tr.appendChild(td0);
+    [r.eirp, r.prx, r.sens].forEach(v => { const td = document.createElement('td'); td.className = 'num r'; td.textContent = v.toFixed(1); tr.appendChild(td); });
+    [r.m, r.m20].forEach(v => { const td = document.createElement('td'); td.className = 'r';
+      const p = document.createElement('span'); p.className = 'pill ' + (v >= 10 ? 'p-ok' : v >= 0 ? 'p-warn' : 'p-bad'); p.textContent = (v > 0 ? '+' : '') + v.toFixed(1); td.appendChild(p); tr.appendChild(td); });
+    lt.appendChild(tr);
+  });
+  draw();
+  let t; window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(draw, 120); });
+})();
+</script>

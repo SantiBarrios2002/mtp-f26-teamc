@@ -1,0 +1,284 @@
+<title>Team C Hardware Proposal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: same system as the radio brief - one reading column (~74ch), wide tables break out to 1040px; a block diagram as the signature element. */
+:root{
+  --bg:#f6f7f7; --panel:#ffffff; --ink:#14191b; --ink-2:#4b5559; --ink-3:#768186;
+  --rule:#dfe3e4; --rule-2:#eceff0; --accent:#0e5b6b; --accent-wash:#e3eff1;
+  --ok:#0b7a3b; --ok-wash:#e4f3ea; --warn:#9a5b00; --warn-wash:#fbf0dc; --bad:#b3261e; --bad-wash:#fbe6e4;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
+  --band-free:#e9ecec; --band-ours:#0e5b6b; --band-ours-ink:#ffffff; --band-alarm:#d6dbdc;
+  --f-display:"Archivo",ui-sans-serif,system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121617; --panel:#1a1f21; --ink:#eef2f3; --ink-2:#b4bec2; --ink-3:#8a969b;
+  --rule:#2d3538; --rule-2:#232a2c; --accent:#6cc3d3; --accent-wash:#16343a;
+  --ok:#5fd18d; --ok-wash:#173327; --warn:#f0b452; --warn-wash:#3a2c13; --bad:#ff8a80; --bad-wash:#3d1c1a;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  --band-free:#262d30; --band-ours:#6cc3d3; --band-ours-ink:#0b1416; --band-alarm:#323b3e;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121617; --panel:#1a1f21; --ink:#eef2f3; --ink-2:#b4bec2; --ink-3:#8a969b;
+  --rule:#2d3538; --rule-2:#232a2c; --accent:#6cc3d3; --accent-wash:#16343a;
+  --ok:#5fd18d; --ok-wash:#173327; --warn:#f0b452; --warn-wash:#3a2c13; --bad:#ff8a80; --bad-wash:#3d1c1a;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  --band-free:#262d30; --band-ours:#6cc3d3; --band-ours-ink:#0b1416; --band-alarm:#323b3e;
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:400 15.5px/1.6 var(--f-body);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1040px;margin:0 auto;padding-inline:20px;padding-block:28px 64px}
+.col{max-width:74ch}
+h1,h2,h3{font-family:var(--f-display);font-stretch:85%;text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:clamp(2rem,4.4vw,2.9rem);font-weight:800;letter-spacing:-.01em}
+h2{font-size:1.45rem;font-weight:700;margin-top:3.2rem;padding-top:1.1rem;border-top:1px solid var(--rule)}
+h3{font-size:1.05rem;font-weight:700;margin-top:1.8rem}
+p{margin:.7rem 0}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+.eyebrow{font:500 .75rem/1.3 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.meta{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:.9rem;color:var(--ink-2);font-size:.9rem}
+.meta b{font-weight:600;color:var(--ink)}
+.lede{font-size:1.08rem;color:var(--ink-2);margin-top:1rem}
+.mono,.num{font-family:var(--f-mono);font-size:.92em}
+.num{font-variant-numeric:tabular-nums}
+.tag{display:inline-block;font:500 .68rem/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 6px;border-radius:3px;vertical-align:1px;white-space:nowrap}
+.t-rule{background:var(--accent-wash);color:var(--accent)}
+.t-ver{background:var(--ok-wash);color:var(--ok)}
+.t-asm{background:var(--warn-wash);color:var(--warn)}
+.t-est{background:var(--rule-2);color:var(--ink-2)}
+
+.bottom{margin-top:1.8rem;background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:20px 22px}
+.bottom h2{margin:0;padding:0;border:0;font-size:1.15rem}
+.bottom ol{margin:.8rem 0 0;padding-left:1.25rem;display:grid;gap:.55rem}
+.bottom li::marker{font-family:var(--f-mono);color:var(--ink-3)}
+
+/* spectrum strip */
+.strip{margin-top:1.2rem;overflow-x:auto}
+.strip svg{display:block;width:100%;min-width:640px;height:auto}
+.strip text{font-family:var(--f-mono)}
+.legend-row{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.82rem;color:var(--ink-2);margin-top:.5rem}
+.key{display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:-1px;margin-right:6px}
+
+/* tables */
+.tbl{overflow-x:auto;margin-top:1rem;border:1px solid var(--rule);border-radius:6px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{padding:8px 10px;text-align:left;vertical-align:top;border-bottom:1px solid var(--rule-2)}
+th{font:600 .74rem/1.3 var(--f-body);letter-spacing:.03em;text-transform:uppercase;color:var(--ink-3);background:var(--bg);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.r,th.r{text-align:right}
+td.num{white-space:nowrap}
+.pill{display:inline-block;font:600 .74rem/1 var(--f-body);padding:4px 7px;border-radius:999px;white-space:nowrap}
+.p-ok{background:var(--ok-wash);color:var(--ok)}
+.p-warn{background:var(--warn-wash);color:var(--warn)}
+.p-bad{background:var(--bad-wash);color:var(--bad)}
+.p-mute{background:var(--rule-2);color:var(--ink-2)}
+tr.hl td{background:var(--accent-wash)}
+.sub{color:var(--ink-3);font-size:.82rem}
+
+/* chart */
+.chart-card{margin-top:1.2rem;background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:16px 16px 10px}
+.chart-legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.82rem;color:var(--ink-2);margin-bottom:6px}
+.lk{display:inline-block;width:16px;height:2px;border-radius:1px;vertical-align:4px;margin-right:7px}
+.chart-wrap{position:relative}
+#chart{display:block;width:100%;height:auto;touch-action:pan-y}
+#chart text{font-family:var(--f-mono);font-size:11px;fill:var(--ink-3)}
+#chart .lbl{fill:var(--ink-2);font-size:11px}
+.tip{position:absolute;pointer-events:none;background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:8px 10px;font-size:.8rem;box-shadow:0 4px 14px rgba(0,0,0,.12);min-width:200px}
+.tip .h{font:500 .75rem var(--f-mono);color:var(--ink-3);margin-bottom:4px}
+.tip .row{display:flex;align-items:center;gap:8px;line-height:1.5}
+.tip .row b{font:600 .85rem var(--f-mono);min-width:56px;text-align:right;color:var(--ink)}
+.tip .row span{color:var(--ink-2)}
+details{margin-top:.6rem}
+summary{cursor:pointer;color:var(--ink-2);font-size:.85rem}
+
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px;margin-top:1rem}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:14px 16px;min-width:0}
+.card h3{margin:0 0 .3rem}
+.card p{margin:.4rem 0;font-size:.92rem}
+.card ul{margin:.4rem 0 0;padding-left:1.1rem;font-size:.92rem}
+ul.tight{padding-left:1.2rem}
+ul.tight li{margin:.25rem 0}
+.callout{border-left:3px solid var(--warn);background:var(--warn-wash);padding:10px 14px;border-radius:0 6px 6px 0;margin-top:1rem;font-size:.93rem}
+.callout.info{border-left-color:var(--accent);background:var(--accent-wash)}
+footer{margin-top:3rem;color:var(--ink-3);font-size:.82rem;border-top:1px solid var(--rule);padding-top:1rem}
+@media (max-width:560px){.wrap{padding-inline:16px} h2{margin-top:2.4rem}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<style>
+.mermaid-wrap{margin-top:1.2rem;background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:14px;overflow-x:auto}
+.verdict{white-space:nowrap}
+.kv{display:grid;grid-template-columns:max-content 1fr;gap:4px 14px;font-size:.92rem;margin:.5rem 0 0}
+.kv dt{color:var(--ink-3);font-weight:600}
+.kv dd{margin:0;min-width:0}
+td.total{font-weight:600;border-top:2px solid var(--rule)}
+</style>
+
+<div class="wrap">
+<header class="col">
+  <div class="eyebrow">MTP F26 · Team C · Radio Team → Electronics Team</div>
+  <h1>Suggested hardware for the transceiver</h1>
+  <div class="meta"><span><b>From</b> Radio Team (Santiago, Andrian, Marcos)</span><span><b>To</b> Carlos, Michele, Bikash, Guillem</span><span><b>Version</b> 0.1 · Wed 7 Oct 2026</span></div>
+  <p class="lede">The radio baseline is 868 MHz with the RFM69HCW. Under our split, the electronics team picks the micro and designs the board. This page is the radio team's <b>suggestion</b>, built around every hardware rule in the competition PDF, to save you time. It is not a decision. Please challenge it.</p>
+</header>
+
+<section class="bottom col" aria-labelledby="bl">
+  <h2 id="bl">In short</h2>
+  <ol>
+    <li><b>Micro module: Raspberry Pi Pico 2</b> (RP2350, <b>not</b> the Pico 2 W). It costs about $5, has 4 MB flash to hold the 1 MB file, 520 KB RAM and 3.3 V logic, and it can act as a USB host on any two pins or on its native USB port. It has no radio chip on board, so it is safe under the protocol ban.</li>
+    <li><b>Radio module: RFM69HW/HCW-868</b> (SX1231H), about $3.5. The radio team's driver for it is already written and tested.</li>
+    <li><b>Board: a custom 2-layer carrier PCB</b> that the Pico 2 and the radio solder onto. It also carries the USB-A host port, the battery charger, the 5 V supply for the stick, ESD protection, the switch, button and LEDs, and a u.FL antenna connector. Before Quick Mode we use a perfboard prototype with the <b>same modules</b>.</li>
+    <li><b>Power: one protected 18650 Li-ion cell</b>, charged on board through a charge-only USB-C port. Our whole competition day uses roughly 10–20 % of it.</li>
+    <li><b>Estimated cost: about €45–55 per device</b> with a lab-made PCB, or about €30–40 with an external fab, against the €150 cap. This keeps us competitive in the cost category.</li>
+  </ol>
+</section>
+
+<section class="col" aria-labelledby="s-rules">
+  <h2 id="s-rules">The rules this design answers</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Rule (competition PDF)</th><th>What it forces on the board</th></tr></thead>
+    <tbody>
+      <tr><td>One and only one module including a microprocessor; no single commercial module embedding the entire system</td><td>Pico 2 is the only micro. The radio, charger and boost contain no CPU. No USB-host chips that have their own controller (e.g. CH376), which could count as a second micro.</td></tr>
+      <tr><td>No chip implementing WiFi, Bluetooth, ZigBee, 2G–5G</td><td><b>Banned even if unused:</b> Pico W / Pico 2 W, ESP32 boards, Arduino Nano 33 BLE/IoT, Uno R4 WiFi, Nano ESP32, Raspberry Pi Zero W / 3 / 4 / 5.</td></tr>
+      <tr><td>Read/write the file from/to a USB memory device: 5 min setup while still wrapped in foil, 3 min to upload afterwards</td><td>A USB-A host port on the box wall, plus <b>≥ 1 MB on-board storage</b>. The sender copies the file in at setup, and the receiver keeps what it got until upload. The stick can be removed during the round.</td></tr>
+      <tr><td>Fits entirely in the 15 × 15 × 7 cm IKEA 365+; only connectors, switches and buttons may stick out</td><td>PCB about 100 × 80 mm or smaller. The antenna sits inside, connected by u.FL so it can be placed high in the box.</td></tr>
+      <tr><td>Operates autonomously</td><td>A battery and a power switch. Nothing plugged in during a round.</td></tr>
+      <tr><td>At least one Tx/Rx switch or button; a pilot light that blinks in Tx/Rx</td><td>Panel pushbutton for Tx/Rx and an activity LED. The box is transparent, so the LED can stay inside.</td></tr>
+      <tr><td>Extra switches allowed (e.g. network mode), but <b>no switch indicating the position in the network</b></td><td>One optional SRI/MRM ↔ NM mode switch. Nothing that encodes a node number.</td></tr>
+      <tr><td>Drop test from table height to concrete (before MRM)</td><td>Everything soldered (no sockets or loose headers), board on standoffs, battery strapped, antenna glued down.</td></tr>
+      <tr><td>ESD and RF exposure compliance</td><td>TVS/ESD protection on USB and the buttons. RF power is small (~27 mW e.r.p.).</td></tr>
+      <tr><td>Modules shown at Quick Mode are final</td><td>The QM prototype uses exactly the Pico 2 and RFM69 part numbers of the final board.</td></tr>
+      <tr><td>Unit cost ≤ €150; lab-made PCB counts €15; everything (screws, foam, wires) goes in the BoM</td><td>Cheap modules; consider an external fab for the PCB (see the cost table).</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section aria-labelledby="s-arch">
+  <div class="col"><h2 id="s-arch">Block diagram</h2>
+  <p>The only fast data path is SPI to the radio, at 12.5 kB/s. USB file transfer happens only before and after a round.</p></div>
+  <div class="mermaid-wrap">
+<pre class="mermaid">
+flowchart LR
+  BAT["18650 Li-ion, protected&lt;br/&gt;3.0–4.2 V"] --> SW["Power slide switch"]
+  CHG["Charger MCP73831&lt;br/&gt;USB-C, charge only"] --> BAT
+  SW --> VSYS["Pico 2 VSYS"]
+  SW --> BST["5 V boost + current-limited switch&lt;br/&gt;ON only during USB load/save"]
+  BST --> USBA["USB-A host port&lt;br/&gt;(file stick)"]
+  VSYS --> PICO["Raspberry Pi Pico 2&lt;br/&gt;RP2350 · 4 MB flash"]
+  PICO -- "3V3 (≤300 mA)" --> RFM["RFM69HW/HCW-868&lt;br/&gt;SPI + DIO0 + RESET"]
+  PICO -- "PIO-USB D+/D−&lt;br/&gt;(ESD: USBLC6)" --> USBA
+  RFM -- "u.FL" --> ANT["868 MHz antenna&lt;br/&gt;top of box"]
+  BTN["Tx/Rx button"] --> PICO
+  MODE["Mode switch SRI/MRM ↔ NM"] --> PICO
+  PICO --> LED["Activity LED (blinks)&lt;br/&gt;+ status LED"]
+</pre>
+  </div>
+</section>
+
+<section aria-labelledby="s-micro">
+  <div class="col"><h2 id="s-micro">Micro module options</h2>
+  <p>Ranked against what the board must do: hold a 1 MB file, act as a USB host, use 3.3 V logic, carry no radio chip, stay cheap, and be ready before Quick Mode.</p></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Module</th><th>Storage for 1 MB file</th><th>USB host</th><th class="r">Price</th><th>Verdict</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr class="hl"><td><b>Raspberry Pi Pico 2</b> (RP2350)</td><td>4 MB flash ✓</td><td>PIO-USB on 2 GPIOs, or native USB</td><td class="num r">~$5</td><td class="verdict"><span class="pill p-ok">recommended</span></td><td>Native USB stays free for programming and logs. Big community. Castellated edge, so it solders flat (good for the drop test).</td></tr>
+      <tr><td>Raspberry Pi Pico (RP2040)</td><td>2 MB flash, tight</td><td>Same as above</td><td class="num r">~$4</td><td class="verdict"><span class="pill p-warn">fallback</span></td><td>Works, but 1 MB of file plus firmware leaves little headroom.</td></tr>
+      <tr><td>Adafruit Feather RP2040 USB Host</td><td>8 MB flash ✓</td><td>USB-A on board</td><td class="num r">~$15</td><td class="verdict"><span class="pill p-warn">fastest prototype</span></td><td>Less to build, but costs more, and we would show less electronics design of our own (which is graded).</td></tr>
+      <tr><td>Teensy 4.1</td><td>8 MB flash ✓</td><td>Host port + library</td><td class="num r">~$35</td><td class="verdict"><span class="pill p-warn">expensive</span></td><td>Easiest USB host, but it hurts the cost category.</td></tr>
+      <tr><td>STM32F411 "Black Pill"</td><td>512 KB ✗</td><td>Native OTG</td><td class="num r">~$5</td><td class="verdict"><span class="pill p-warn">needs extra flash</span></td><td>Would need external flash, and USB mass-storage host firmware is heavier.</td></tr>
+      <tr><td>Arduino Uno / Nano (AVR)</td><td>✗</td><td>✗</td><td class="num r">—</td><td class="verdict"><span class="pill p-bad">no</span></td><td>5 V logic (the radio is 3.3 V only), 2 KB RAM, no USB host.</td></tr>
+      <tr><td>Raspberry Pi Zero (non-W)</td><td>SD card ✓</td><td>✓</td><td class="num r">~$5–10</td><td class="verdict"><span class="pill p-bad">no</span></td><td>Linux: slow boot, high current, and SD corruption on power loss or a drop.</td></tr>
+      <tr><td>Pico W / Pico 2 W, ESP32, Nano 33 BLE/IoT, Uno R4 WiFi, Pi Zero W, Pi 3/4/5</td><td>—</td><td>—</td><td class="num r">—</td><td class="verdict"><span class="pill p-bad">banned</span></td><td>On-board WiFi/BT chip.</td></tr>
+      <tr><td>Micro + radio combos (Feather RP2040 RFM69, Moteino)</td><td>—</td><td>—</td><td class="num r">—</td><td class="verdict"><span class="pill p-bad">avoid</span></td><td>Risks the "single commercial module embedding the entire system" rule. Would need an Atenea answer first.</td></tr>
+    </tbody>
+  </table></div>
+  <p class="col sub">Prices are list prices seen online on 7 Oct 2026 (Raspberry Pi, TME, Adafruit). Get real quotes before ordering.</p>
+</section>
+
+<section aria-labelledby="s-bom">
+  <div class="col"><h2 id="s-bom">Suggested parts per device</h2>
+  <p>Example part numbers to start from. Electronics owns the final choice, the footprints and the sourcing.</p></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Function</th><th>Suggested part</th><th>Why</th><th class="r">≈ € / device</th></tr></thead>
+    <tbody>
+      <tr><td>Micro module</td><td>Raspberry Pi Pico 2 (SC1631), <b>non-W</b></td><td>See above</td><td class="num r">5.5</td></tr>
+      <tr><td>Radio module</td><td>HopeRF RFM69HW-868S2 or RFM69HCW-868S2</td><td>Same SX1231H radio, different pad layout; pick one footprint and keep it</td><td class="num r">3.5–6</td></tr>
+      <tr><td>Antenna</td><td>u.FL connector + λ/4 wire (QM), 868 MHz FPC or helical for the A/B test</td><td>u.FL lets the antenna sit high, away from the PCB</td><td class="num r">0.5–5</td></tr>
+      <tr><td>USB host port</td><td>USB-A receptacle, through-hole, panel-facing</td><td>Through-hole survives plugging and the drop test</td><td class="num r">0.5</td></tr>
+      <tr><td>5 V for the stick</td><td>Boost (e.g. TPS61023) + current-limited switch (e.g. TPS2051 / AP2552), enabled by a GPIO</td><td>Sticks need 5 V. Powered only during load/save, which saves energy and protects against shorts</td><td class="num r">2</td></tr>
+      <tr><td>ESD</td><td>USBLC6-2SC6 on D+/D−; TVS on VBUS and the button lines</td><td>ESD compliance; the USB port is touched every round</td><td class="num r">0.6</td></tr>
+      <tr><td>Battery</td><td>1 × protected 18650 Li-ion (~2500 mAh) with solder tabs, or holder + strap</td><td>Steel can is robust in the drop test; rechargeable (sustainability report)</td><td class="num r">6–8</td></tr>
+      <tr><td>Charger</td><td>MCP73831 (or TP4056) + USB-C receptacle, charge only</td><td>Charge between rounds without opening the box. Nothing is plugged in during operation</td><td class="num r">1.2</td></tr>
+      <tr><td>Controls</td><td>Slide power switch, panel Tx/Rx pushbutton, optional mode switch, 2 LEDs</td><td>Required by the rules</td><td class="num r">2.5</td></tr>
+      <tr><td>Bulk capacitance</td><td>47–100 µF + 100 nF at the radio; 100 µF on USB VBUS</td><td>Handles ~95 mA radio TX bursts and stick inrush</td><td class="num r">0.5</td></tr>
+      <tr><td>PCB</td><td>2-layer carrier, ≤ 100 × 80 mm</td><td>ETSETB lab = €15 in the BoM (rule); an external fab is ~€1 per board but adds 1–2 weeks</td><td class="num r">1–15</td></tr>
+      <tr><td>Mechanics</td><td>M3 nylon standoffs, base plate, cable ties, hot glue, IKEA 365+ box</td><td>Drop test; the BoM must list them too</td><td class="num r">5–7</td></tr>
+      <tr><td class="total" colspan="3">Total per device (verify with quotes)</td><td class="num r total">≈ 30–55</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section aria-labelledby="s-power">
+  <div class="col"><h2 id="s-power">Power budget</h2></div>
+  <div class="grid2">
+    <div class="card"><h3>Current draw</h3>
+      <dl class="kv">
+        <dt>Pico 2 running</dt><dd class="num">≈ 30–50 mA <span class="tag t-est">estimate</span></dd>
+        <dt>RFM69 TX +17 dBm</dt><dd class="num">≈ 95 mA <span class="tag t-ver">datasheet</span></dd>
+        <dt>RFM69 RX</dt><dd class="num">≈ 16 mA <span class="tag t-ver">datasheet</span></dd>
+        <dt>USB stick (5 V)</dt><dd class="num">50–100 mA, only during load/save <span class="tag t-est">estimate</span></dd>
+        <dt>Peak from 3V3</dt><dd class="num">≈ 150 mA, under the Pico's 300 mA limit</dd>
+      </dl></div>
+    <div class="card"><h3>Battery sizing</h3>
+      <p>A sending round averages about 140 mA. Idle with the radio listening is about 50 mA. A full competition day of ~4 hours powered on needs about <b>250–400 mAh</b>.</p>
+      <p>One 2500 mAh 18650 covers that about six times over. A smaller LiPo would also do, but pouch cells are more fragile in the drop test.</p></div>
+    <div class="card"><h3>For the sustainability report</h3>
+      <p>We can measure watts per round directly on this design. The parts are rechargeable and RoHS. The modules unsolder and can be reused, and the board shape lets you repair rather than replace.</p></div>
+  </div>
+</section>
+
+<section aria-labelledby="s-plan">
+  <div class="col"><h2 id="s-plan">Build stages</h2></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Stage</th><th>Board</th><th>Goal</th><th>Target</th></tr></thead>
+    <tbody>
+      <tr><td>1 · Bench</td><td>Pico 2 + RFM69 on a 2 mm→2.54 mm adapter, breadboard, USB powered</td><td>Radio tests T0/T2; USB-stick read/write via PIO-USB</td><td class="num">as soon as parts arrive</td></tr>
+      <tr><td>2 · Quick Mode</td><td>Perfboard, <b>same module part numbers</b>, external power allowed</td><td>One error-free line from a file in &lt; 2 min, first attempt</td><td class="num">week 6–7</td></tr>
+      <tr><td>3 · PCB rev A</td><td>Custom 2-layer carrier (KiCad), boxed, battery</td><td>Autonomous, drop-tested, range tests T4/T5</td><td class="num">week 8–9</td></tr>
+      <tr><td>4 · PCB rev B</td><td>Fixes from rev A</td><td>Pretest (4 Dec) fully packaged</td><td class="num">week 10–11</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section aria-labelledby="s-risk">
+  <div class="col"><h2 id="s-risk">Risks and how we cover them</h2></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Risk</th><th>Mitigation</th></tr></thead>
+    <tbody>
+      <tr><td>PIO-USB host fails with some USB sticks</td><td>Test 3–4 different sticks in stage 1. The RP2350's native USB can also be a host, so a second path exists on the same chip.</td></tr>
+      <tr><td>The foil-wrapped setup makes the USB port hard to reach</td><td>Put the port on a side wall. Ask on Atenea whether the foil may be opened at the port during the 5-min setup.</td></tr>
+      <tr><td>Brown-out during radio TX</td><td>Bulk capacitance at the radio; check the battery at low charge (3.3 V) in stage 3.</td></tr>
+      <tr><td>Drop test breaks a joint or ejects the battery</td><td>No sockets; standoffs; strapped cell; drop rev A on purpose in week 9.</td></tr>
+      <tr><td>The "attacks" interrupt the link mid-round</td><td>Watchdog and brown-out reset; firmware resumes from the last acknowledged line (protocols team).</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section aria-labelledby="s-ask">
+  <div class="col"><h2 id="s-ask">What we need from electronics</h2>
+  <ol>
+    <li>Agree or counter-propose the micro by <b>Fri 16 Oct</b>, so we can order together with the radio modules.</li>
+    <li>Pick the RFM69 footprint (HW-S2 or HCW) and the PCB route (lab at €15, or external fab).</li>
+    <li>Pin map for SPI, NSS, RESET, DIO0, PIO-USB D+/D−, button, LEDs and mode switch. We will write the radio's hardware layer against it.</li>
+    <li>Book Prof. Chávez or Prof. Jiménez to review this block diagram and the lab's PCB capabilities.</li>
+  </ol></div>
+</section>
+
+<footer>
+  <p>Radio details (interface pins, timing, test plan): Team C Radio Brief v0.2. Rules quoted from <i>MTP F26 – Program Competition Rules – Network Upgrade III + Sustainability</i>.</p>
+  <p>Sources checked 7 Oct 2026: <a href="https://github.com/sekigon-gonnoc/Pico-PIO-USB">Pico-PIO-USB</a> (USB host/device via PIO, RP2040 and RP2350) · <a href="https://www.cnx-software.com/2024/08/08/raspberry-pi-pico-2-raspberry-pi-rp2350-dual-core-risc-v-or-arm-cortex-m33-microcontroller/">Pico 2 specs</a> · <a href="https://www.tme.eu/sa/en/details/rfm69hw-868s2/rf-modules/hope-microelectronics/">TME RFM69HW-868S2</a>.</p>
+</footer>
+</div>
