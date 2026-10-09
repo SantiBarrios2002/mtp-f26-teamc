@@ -26,10 +26,10 @@ typedef struct {
     uint32_t end_gap_us;
 } link_cfg_t;
 
-/* Timeouts derived from the air bit rate, so a profile change (e.g. the 38.4 kbps
- * fallback) keeps the receiver from ACKing in the middle of a burst. */
+/* Timeouts derived from the air bit rate, so a profile change (e.g. 1 Mbps for SRI)
+ * keeps the receiver from ACKing in the middle of a burst. */
 void link_cfg_for_bitrate(link_cfg_t *cfg, uint32_t bitrate_bps);
-void link_cfg_default(link_cfg_t *cfg); /* = link_cfg_for_bitrate(cfg, 100000) */
+void link_cfg_default(link_cfg_t *cfg); /* = link_cfg_for_bitrate(cfg, 250000) */
 
 typedef struct {
     uint32_t frames, retx, bursts, acks, timeouts, hellos;

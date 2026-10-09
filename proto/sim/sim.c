@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "rfm69.h"
+#include "nrf24.h"
 
 enum { EV_TX_BEGIN, EV_TX_END, EV_TIMER, EV_CALL, EV_UP };
 
@@ -110,13 +110,13 @@ static uint32_t env_rand32(void *ctx) { return (uint32_t)(rng_next(((sim_node_t 
 
 /* ------------------------------------------------------------- set-up */
 
-void sim_init(sim_t *s, int n_nodes, const rfm69_profile_t *profile, uint64_t seed)
+void sim_init(sim_t *s, int n_nodes, const nrf24_profile_t *profile, uint64_t seed)
 {
     memset(s, 0, sizeof *s);
     s->n = n_nodes;
     s->profile = profile;
     s->t_turn_us = 1000; /* RX<->TX switch incl. PLL lock and FIFO load [ASSUMPTION, as in linkbudget.py] */
-    s->t_gap_us = 500;   /* between queued frames: FIFO refill + TX restart [ASSUMPTION] */
+    s->t_gap_us = 300;   /* between queued frames: 130 us PLL settling + FIFO load [ASSUMPTION] */
     s->rng = seed * 0x9E3779B97F4A7C15ULL + 1u;
     for (int i = 0; i < SIM_MAX_NODES; i++)
         for (int j = 0; j < SIM_MAX_NODES; j++)
@@ -130,7 +130,6 @@ void sim_init(sim_t *s, int n_nodes, const rfm69_profile_t *profile, uint64_t se
         nd->env.now_us = env_now;
         nd->env.set_timer = env_set_timer;
         nd->env.rand32 = env_rand32;
-        dc_guard_init(&nd->dc, DC_GUARD_DEFAULT_MS);
     }
 }
 
@@ -186,13 +185,7 @@ static void tx_begin(sim_t *s, sim_node_t *nd)
         nd->qh = (nd->qh + 1u) % SIM_QCAP;
         nd->qn--;
         uint8_t len = nd->qlen[slot];
-        uint32_t air = rfm69_airtime_us(s->profile, len);
-        uint32_t now_ms = (uint32_t)(s->now / 1000u), air_ms = (air + 999u) / 1000u;
-        if (!dc_guard_allows(&nd->dc, now_ms, air_ms)) {
-            nd->st.duty_refused++;
-            continue;
-        }
-        dc_guard_add(&nd->dc, now_ms, air_ms);
+        uint32_t air = nrf24_airtime_us(s->profile, len);
         memcpy(nd->cur, nd->q[slot], len);
         nd->cur_len = len;
         nd->cur_start = s->now;

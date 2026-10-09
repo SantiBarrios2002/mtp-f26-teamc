@@ -1,7 +1,7 @@
 /* MTP-F26 Team C - protocol simulator: scenarios, scoring and test suite.
  *
  *   sim sri  [--loss P] [--burst] [--blackout A:B] [--rx-reboot T] [--tx-reboot T]
- *            [--codec deflate|none] [--profile 100k|38k4] [--file F] [--seed N] [--duration S]
+ *            [--codec deflate|none] [--profile 250k|1m] [--file F] [--seed N] [--duration S]
  *   sim nm   [--nodes N] [--p1 P] [--p2 P] [--file F] [--seed N] [--duration S]
  *   sim test   run the pass/fail suite (exit code 1 on failure)
  *
@@ -15,7 +15,7 @@
 #include "codec.h"
 #include "link.h"
 #include "nm_gossip.h"
-#include "rfm69.h"
+#include "nrf24.h"
 #include "sim.h"
 
 #define S_US 1000000ULL
@@ -70,7 +70,7 @@ static uint32_t score_lines(const txtfile_t *f, const uint8_t *rx, uint32_t rx_l
 typedef struct {
     double loss, bo_from, bo_to, rx_reboot, tx_reboot, duration;
     int burst, codec;
-    const rfm69_profile_t *profile;
+    const nrf24_profile_t *profile;
     const char *file;
     uint64_t seed;
 } sri_opts_t;
@@ -223,13 +223,12 @@ static void print_sri(const char *label, const sri_result_t *r)
         printf("  whole file in      not finished\n");
     if (r->recovery_s >= 0)
         printf("  recovery after blackout %.2f s\n", r->recovery_s);
-    printf("  TX time            sender %.1f s, receiver %.1f s (budget 342 s/h)\n", r->tx_s_sender, r->tx_s_receiver);
+    printf("  TX time            sender %.1f s, receiver %.1f s (no duty-cycle limit at 2.4 GHz)\n", r->tx_s_sender, r->tx_s_receiver);
     printf("  sender             %u frames, %u retx, %u bursts, %u acks, %u timeouts, %u hellos\n",
            r->tx.frames, r->tx.retx, r->tx.bursts, r->tx.acks, r->tx.timeouts, r->tx.hellos);
-    printf("  channel            rx lost %u, deaf %u, collisions %u, blackout %u, duty-refused %u\n",
+    printf("  channel            rx lost %u, deaf %u, collisions %u, blackout %u\n",
            r->ns1.rx_lost + r->ns0.rx_lost, r->ns1.rx_deaf + r->ns0.rx_deaf,
-           r->ns1.rx_collision + r->ns0.rx_collision, r->ns1.rx_blackout + r->ns0.rx_blackout,
-           r->ns0.duty_refused + r->ns1.duty_refused);
+           r->ns1.rx_collision + r->ns0.rx_collision, r->ns1.rx_blackout + r->ns0.rx_blackout);
 }
 
 /* ------------------------------------------------------------------- NM */
@@ -266,7 +265,7 @@ static int run_nm(const nm_opts_t *o, nm_result_t *r)
     nm_t *nm = calloc((size_t)o->nodes, sizeof *nm);
     nm_cfg_t cfg;
     nm_cfg_default(&cfg);
-    sim_init(s, o->nodes, &RFM69_PROFILE_NM_COMMON, o->seed);
+    sim_init(s, o->nodes, &NRF24_PROFILE_NM_COMMON, o->seed);
     for (int i = 0; i < o->nodes; i++)
         for (int j = i + 1; j < o->nodes; j++)
             sim_set_link(s, i, j, j - i == 1 ? o->p1 : j - i == 2 ? o->p2 : 1.0, 150);
@@ -336,7 +335,7 @@ static sri_opts_t sri_defaults(void)
     sri_opts_t o = {0};
     o.duration = 120;
     o.codec = CODEC_DEFLATE;
-    o.profile = &RFM69_PROFILE_SRI_100K;
+    o.profile = &NRF24_PROFILE_TEAM_250K;
     o.file = DEFAULT_FILE;
     o.seed = 1;
     return o;
@@ -407,11 +406,10 @@ static int run_tests(void)
 
     o = sri_defaults();
     o.loss = 0.05;
-    o.profile = &RFM69_PROFILE_ROBUST_38K4;
+    o.profile = &NRF24_PROFILE_TEAM_1M;
     run_sri(&o, &r);
-    print_sri("\nT8  SRI, fallback profile 38.4 kbps, 5 % loss, deflate", &r);
-    expect(r.exact, "byte-exact prefix");
-    expect(r.lines >= 9000, "fallback still delivers >= 9 000 lines (timeouts scale with bit rate)");
+    print_sri("\nT8  SRI at 1 Mbps (TEAM_1M), 5 % loss, deflate", &r);
+    expect(r.lines == r.total_lines && r.exact, "all lines at 1 Mbps (timeouts scale with bit rate)");
 
     o = sri_defaults();
     o.loss = 0.05;
@@ -470,7 +468,7 @@ int main(int argc, char **argv)
             else if (!strcmp(argv[i], "--codec") && i + 1 < argc)
                 o.codec = !strcmp(argv[++i], "none") ? CODEC_NONE : CODEC_DEFLATE;
             else if (!strcmp(argv[i], "--profile") && i + 1 < argc)
-                o.profile = !strcmp(argv[++i], "38k4") ? &RFM69_PROFILE_ROBUST_38K4 : &RFM69_PROFILE_SRI_100K;
+                o.profile = !strcmp(argv[++i], "1m") ? &NRF24_PROFILE_TEAM_1M : &NRF24_PROFILE_TEAM_250K;
             else if (!strcmp(argv[i], "--file") && i + 1 < argc)
                 o.file = argv[++i];
             else if (!strcmp(argv[i], "--seed"))

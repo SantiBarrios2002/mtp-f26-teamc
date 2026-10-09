@@ -5,7 +5,7 @@
  * to imax, one transmission point at a random time in [I/2, I), suppressed when
  * enough duplicate frames were heard in the interval. Hearing a new chunk resets
  * I to imin, so the file spreads fast and the channel goes quiet once everyone
- * has it. Frames: [0x4E][file_id:2][idx][total][data <= 57][crc16:2].
+ * has it. Frames: [0x4E][file_id:2][idx][total][data <= 25][crc16:2].
  */
 #ifndef NM_GOSSIP_H
 #define NM_GOSSIP_H
@@ -15,7 +15,7 @@
 #include "frames.h"
 #include "proto_env.h"
 
-#define NM_MAX_CHUNKS 32u   /* 32 x 57 B = 1824 B: room for the ~0.5 KB NM file */
+#define NM_MAX_CHUNKS 32u   /* 32 x 25 B = 800 B: room for the ~0.5 KB NM file */
 
 typedef struct {
     uint32_t imin_us, imax_us;

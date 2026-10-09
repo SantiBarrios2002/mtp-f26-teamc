@@ -6,7 +6,7 @@ RADIO = ../radio/fw
 CFLAGS ?= -std=c11 -O2 -g -Wall -Wextra -Werror
 CPPFLAGS += -Isrc -Isim -I$(RADIO)
 PROTO = src/link.c src/nm_gossip.c src/codec.c
-RADIO_SRC = $(RADIO)/rfm69.c $(RADIO)/dc_guard.c $(RADIO)/crc16.c
+RADIO_SRC = $(RADIO)/nrf24.c $(RADIO)/crc16.c
 SIM = sim/sim.c sim/main.c
 
 .PHONY: test sim sample clean
@@ -16,7 +16,7 @@ test: sim sample
 
 sim: build/sim
 
-build/sim: $(PROTO) $(RADIO_SRC) $(SIM) $(wildcard src/*.h sim/*.h) $(RADIO)/rfm69_config.h
+build/sim: $(PROTO) $(RADIO_SRC) $(SIM) $(wildcard src/*.h sim/*.h) $(RADIO)/nrf24_config.h
 	mkdir -p build
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $(PROTO) $(RADIO_SRC) $(SIM) -lz
 

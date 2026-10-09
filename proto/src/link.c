@@ -27,12 +27,13 @@ static uint32_t get32(const uint8_t *p)
 static uint64_t now(const proto_env_t *e) { return e->now_us(e->ctx); }
 
 #define TURNAROUND_US 1000u /* RX<->TX switch of the radio + MCU [ASSUMPTION, bench-measure] */
-#define FRAME_GAP_US 500u   /* between frames of one burst [ASSUMPTION] */
+#define FRAME_GAP_US 300u   /* between frames: 130 us PLL settling + FIFO load + CE pulse [ASSUMPTION] */
 
-/* Airtime of a frame with `body` bytes: 4 B preamble + 2 B sync + length + body + 2 B CRC. */
+/* Airtime of an nRF24 frame with `body` bytes: 1 B preamble + 5 B address + 9-bit packet
+ * control field + body + 2 B CRC (same as nrf24_airtime_us in radio/fw). */
 static uint32_t air_us(uint32_t body, uint32_t bitrate_bps)
 {
-    return (uint32_t)(((uint64_t)(4u + 2u + 1u + body + 2u) * 8u * 1000000u) / bitrate_bps);
+    return (uint32_t)(((uint64_t)((1u + 5u + body + 2u) * 8u + 9u) * 1000000u) / bitrate_bps);
 }
 
 void link_cfg_for_bitrate(link_cfg_t *cfg, uint32_t bitrate_bps)
@@ -49,7 +50,7 @@ void link_cfg_for_bitrate(link_cfg_t *cfg, uint32_t bitrate_bps)
     cfg->end_gap_us = frame;
 }
 
-void link_cfg_default(link_cfg_t *cfg) { link_cfg_for_bitrate(cfg, 100000u); }
+void link_cfg_default(link_cfg_t *cfg) { link_cfg_for_bitrate(cfg, 250000u); }
 
 /* ------------------------------------------------------------------ sender */
 
