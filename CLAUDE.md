@@ -134,7 +134,7 @@ what's pending.
   gives margins of SRI +36.7, MRM +13.9 and NM +20.5 dB, matching linkbudget.py. No Excel or LibreOffice here,
   so the original .xls can't be edited with its formulas kept.
 - Purchase recommendation: Adafruit RFM69HCW breakout (PID 3070) for bench + QM, kept for the final
-  so the QM module stays the same. Recorded in D-R2.
+  so the QM module stays the same. €13.65 excl. VAT at Opencircuit, 10–12 days delivery: order by 16-Oct. Recorded in D-R2.
 - Now a git repo: background sessions edit in a worktree (`.claude/worktrees/`, ignored). Santiago
   allowed pushing early commits straight to main.
 

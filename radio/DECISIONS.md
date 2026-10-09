@@ -49,7 +49,9 @@ Configuration: `phy_config.py` profiles `SRI_100K` (100 kbps GFSK BT 0.5, Fdev 5
 Purchase (recommended 9-Oct-26): the **Adafruit RFM69HCW breakout, PID 3070** ("868 or 915 MHz"; per
 LowPowerLab the 868 and 915 MHz HopeRF parts are the same hardware). Buy 3 (2 boxes + 1 spare) for the bench and
 Quick Mode, and **keep it in the final boxes** (soldered to the carrier PCB by its 0.1" headers), so the module shown
-at QM is literally the one that competes. It adds ~€6–8 per device over the bare module. Its 3.3 V regulator takes the
+at QM is literally the one that competes. Price checked 9-Oct at Opencircuit: €13.65 excl. VAT (€16.50 incl.), 10–12 days
+delivery, so it costs ~€10 per device more than a bare module (~€3–4). **Order by Fri 16 Oct** to have it for T0/T2
+before a Quick Mode attempt in early November. The u.FL connector is not included (buy separately). Its 3.3 V regulator takes the
 ~95 mA TX bursts off the micro's supply, and it has u.FL/SMA pads. Switch to the bare RFM69HCW-868 only if the team
 decides so **before** QM.
 
