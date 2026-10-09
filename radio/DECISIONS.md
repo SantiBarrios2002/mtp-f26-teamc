@@ -81,6 +81,16 @@ Fallback: Si4463 (same band, same link budget, more effort).
   | Linx ANT-868-HETH (helical, through-hole) | 25.4 × 15.3 × 8.9 mm | 5.6 dBi peak (on Linx's eval board) | Solders to the carrier PCB; needs its ground plane; real gain in the box will be lower |
   | Ignion NN chip booster | ~ a few mm | depends on matching network | Needs a matching network + VNA tuning on the PCB; Carles Puente co-founded Ignion |
 
+**Antenna pick (recommended 9-Oct-26, Santiago asked for one choice):**
+- Quick Mode: the λ/4 wire (86 mm, inverted-L). The rules allow antennas to change after QM, and it costs nothing.
+- Final: **Molex 211140-0100** flex antenna (868-870 MHz, 38 × 10 mm, u.FL, 100 mm cable, 0.3 dBi peak, > 55 %
+  efficiency, omni, linear; ~$2.50 at DigiKey). It fits upright on the box wall under the lid and survives the drop
+  test glued flat. Its -5 dB return loss costs ~1.7 dB of mismatch, which the +13.9 dB MRM margin absorbs.
+- Buy 4 antennas + 3 u.FL SMT connectors for the Adafruit boards (the connector is not included).
+- Mount: vertical, as high as possible, ≥ 2 cm from the battery and any metal, same orientation in both boxes.
+- Test T5 decides it: keep the Molex if it is within 3 dB of the wire in the closed box; otherwise fall back to the
+  wire or try the Taoglas FXP895. Unknown: whether it needs a ground plane. Check the datasheet, then measure.
+
 ## Open
 
 | ID | Decision | Target |

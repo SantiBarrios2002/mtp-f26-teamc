@@ -90,8 +90,8 @@ Classes and tutor meetings are on **Fridays**. Week 2 = Fri 2-Oct-26.
 - RFM69HCW datasheet limits +20 dBm to 1 % duty cycle.
 
 **Working baseline (Santiago, 4-Oct; needs Andrian + Marcos sign-off by 16-Oct):**
-- D-R1 band 869.40–869.65 MHz @ 869.525 MHz · D-R2 RFM69HCW 868, +17 dBm, 100 kbps GFSK
-  (Fdev 50 kHz) · D-R5 QM antenna λ/4 inverted-L wire at top of box.
+- D-R1 band 869.40–869.65 MHz @ 869.525 MHz · D-R2 RFM69HCW 868 (Adafruit PID 3070), +17 dBm, 100 kbps
+  GFSK (Fdev 50 kHz) · D-R5 antenna: λ/4 wire for QM, Molex 211140-0100 flex (u.FL) for the final, T5 decides.
 - Duty cycle binds: ~115 s TX per 2-min sending round vs 360 s/h → ≈3 rounds/h/box, tests
   included. Bench/repeat tests go to 869.70–870.00 MHz (5 mW, no limit).
 - Baseline margins (workbook S13–S15): MRM 260 m +13.9 dB · NM 100 m hop with −10 dB
@@ -135,6 +135,7 @@ what's pending.
   so the original .xls can't be edited with its formulas kept.
 - Purchase recommendation: Adafruit RFM69HCW breakout (PID 3070) for bench + QM, kept for the final
   so the QM module stays the same. €13.65 excl. VAT at Opencircuit, 10–12 days delivery: order by 16-Oct. Recorded in D-R2.
+- Antenna pick: wire for QM, Molex 211140-0100 for the final (buy 4 + 3 u.FL connectors). Recorded in D-R5.
 - Now a git repo: background sessions edit in a worktree (`.claude/worktrees/`, ignored). Santiago
   allowed pushing early commits straight to main.
 
